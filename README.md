@@ -45,7 +45,7 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: target/release/mything
         asset_name: mything
-        tag: {{ github.event.ref }}
+        tag: ${{ github.event.ref }}
         overwrite: true
 ```
 
