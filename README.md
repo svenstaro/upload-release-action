@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: hecrj/setup-rust-action@master
+    - uses: hecrj/setup-rust-action@v1-release
       with:
         rust-version: stable
     - uses: actions/checkout@v1
@@ -76,7 +76,7 @@ jobs:
             asset_name: mything-macos-amd64
 
     steps:
-    - uses: hecrj/setup-rust-action@master
+    - uses: hecrj/setup-rust-action@v1-release
       with:
         rust-version: stable
     - uses: actions/checkout@v1
