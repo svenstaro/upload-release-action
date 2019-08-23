@@ -88,4 +88,5 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: target/release/${{ matrix.artifact_name }}
         asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.event.ref }}
 ```
