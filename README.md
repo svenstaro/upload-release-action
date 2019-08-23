@@ -7,11 +7,11 @@ It runs on all operating systems types offered by GitHub.
 
 You must provide:
 
-    - `repo_token`: Usually you'll want to set this to `${{ secrets.GITHUB_TOKEN }}`
-    - `file`: A local file to be uploaded as the asset.
-    - `asset_name`: The name the file gets as an asset on a release.
-    - `tag`: The tag to uploaded into. If you want the current event's tag, use `${{ github.event.ref }}`
-    - `overwrite`: If an asset with name already exists, overwrite it.
+- `repo_token`: Usually you'll want to set this to `${{ secrets.GITHUB_TOKEN }}`
+- `file`: A local file to be uploaded as the asset.
+- `asset_name`: The name the file gets as an asset on a release.
+- `tag`: The tag to uploaded into. If you want the current event's tag, use `${{ github.event.ref }}`
+- `overwrite`: If an asset with name already exists, overwrite it.
 
 ## Usage
 
