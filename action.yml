@@ -1,10 +1,17 @@
-name: 'Node 12 Template Action'
-description: 'Get started with Node actions'
-author: 'GitHub'
-inputs: 
-  myInput:
-    description: 'Input to use'
-    default: 'world'
+name: 'Upload files to a GitHub release'
+description: 'Upload files to a GitHub release (cross-platform)'
+author: 'Sven-Hendrik Haase'
+inputs:
+  repo_token:
+    description: 'GitHub token'
+  file:
+    description: 'Local file to upload'
+  asset_name:
+    description: 'Name of the asset'
+  tag:
+    description: 'Tag to use as a release'
+  overwrite:
+    description: 'Overwrite the release in case it already exists'
 runs:
   using: 'node12'
   main: 'lib/main.js'
