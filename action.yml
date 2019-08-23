@@ -1,15 +1,22 @@
 name: 'Upload files to a GitHub release'
 description: 'Upload files to a GitHub release (cross-platform)'
 author: 'Sven-Hendrik Haase'
+branding:
+  icon: archive
+  color: orange
 inputs:
   repo_token:
     description: 'GitHub token'
+    required: true
   file:
     description: 'Local file to upload'
+    required: true
   asset_name:
     description: 'Name of the asset'
+    required: true
   tag:
     description: 'Tag to use as a release'
+    required: true
   overwrite:
     description: 'Overwrite the release in case it already exists'
 runs:
