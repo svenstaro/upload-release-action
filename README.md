@@ -39,7 +39,7 @@ Simple example:
         - name: Build
           run: cargo build --release
         - name: Upload binaries to release
-          uses: svenstaro/upload-release-action@master
+          uses: svenstaro/upload-release-action@v1-release
           with:
             repo_token: ${{ secrets.GITHUB_TOKEN }}
             file: target/release/mything
@@ -80,7 +80,7 @@ Complex example with more operating systems:
         - name: Build
           run: cargo build --release
         - name: Upload binaries to release
-          uses: svenstaro/upload-release-action@master
+          uses: svenstaro/upload-release-action@v1-release
           with:
             repo_token: ${{ secrets.GITHUB_TOKEN }}
             file: target/release/${{ matrix.artifact_name }}
