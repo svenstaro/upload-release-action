@@ -1,4 +1,4 @@
-# Upload files to a GitHub release ![GitHub Actions Workflow](https://github.com/svenstaro/upload-release-action/workflows/PR%20Checks/badge.svg)
+# Upload files to a GitHub release [![GitHub Actions Workflow](https://github.com/svenstaro/upload-release-action/workflows/PR%20Checks/badge.svg)](https://github.com/svenstaro/upload-release-action/actions)
 
 This action allows you to select which files to upload to the just-tagged release.
 It runs on all operating systems types offered by GitHub.
