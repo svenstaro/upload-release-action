@@ -24,8 +24,9 @@ Simple example:
 name: Publish
 
 on:
-  create:
+  push:
     tags:
+      - '*'
 
 jobs:
   build:
@@ -55,8 +56,9 @@ Complex example with more operating systems:
 name: Publish
 
 on:
-  create:
+  push:
     tags:
+      - '*'
 
 jobs:
   build:
