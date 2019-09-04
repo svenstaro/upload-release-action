@@ -65,7 +65,7 @@ async function run() {
         const token = core.getInput('repo_token', { required: true });
         const file = core.getInput('file', { required: true });
         const asset_name = core.getInput('asset_name', { required: true });
-        const tag = core.getInput('tag', { required: true });
+        const tag = core.getInput('tag', { required: true }).replace("refs/tags/", "");
         const overwrite = core.getInput('overwrite');
 
         if (!fs.existsSync(file)) {

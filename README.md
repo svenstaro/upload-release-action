@@ -1,4 +1,4 @@
-# Upload files to a GitHub release
+# Upload files to a GitHub release [![GitHub Actions Workflow](https://github.com/svenstaro/upload-release-action/workflows/PR%20Checks/badge.svg)](https://github.com/svenstaro/upload-release-action/actions)
 
 This action allows you to select which files to upload to the just-tagged release.
 It runs on all operating systems types offered by GitHub.
@@ -10,8 +10,8 @@ You must provide:
 - `repo_token`: Usually you'll want to set this to `${{ secrets.GITHUB_TOKEN }}`
 - `file`: A local file to be uploaded as the asset.
 - `asset_name`: The name the file gets as an asset on a release.
-- `tag`: The tag to uploaded into. If you want the current event's tag, use `${{ github.event.ref }}`
-- `overwrite`: If an asset with name already exists, overwrite it.
+- `tag`: The tag to uploaded into. If you want the current event's tag, use `${{ github.ref }}`
+- `overwrite`: If an asset with the same name already exists, overwrite it.
 
 ## Usage
 
@@ -45,7 +45,7 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: target/release/mything
         asset_name: mything
-        tag: ${{ github.event.ref }}
+        tag: ${{ github.ref }}
         overwrite: true
 ```
 
@@ -88,4 +88,5 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: target/release/${{ matrix.artifact_name }}
         asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
 ```
