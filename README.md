@@ -3,7 +3,7 @@
 This action allows you to select which files to upload to the just-tagged release.
 It runs on all operating systems types offered by GitHub.
 
-## Input variables:
+## Input variables
 
 You must provide:
 
