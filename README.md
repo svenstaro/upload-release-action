@@ -3,7 +3,7 @@
 This action allows you to select which files to upload to the just-tagged release.
 It runs on all operating systems types offered by GitHub.
 
-## Input variables:
+## Input variables
 
 You must provide:
 
@@ -24,8 +24,9 @@ Simple example:
 name: Publish
 
 on:
-  create:
+  push:
     tags:
+      - '*'
 
 jobs:
   build:
@@ -55,11 +56,12 @@ Complex example with more operating systems:
 name: Publish
 
 on:
-  create:
+  push:
     tags:
+      - '*'
 
 jobs:
-  build:
+  publish:
     name: Publish for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -81,7 +83,7 @@ jobs:
         rust-version: stable
     - uses: actions/checkout@v1
     - name: Build
-      run: cargo build --release
+      run: cargo build --release --locked
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v1-release
       with:
