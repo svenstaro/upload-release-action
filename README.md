@@ -61,7 +61,7 @@ on:
       - '*'
 
 jobs:
-  build:
+  publish:
     name: Publish for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -83,7 +83,7 @@ jobs:
         rust-version: stable
     - uses: actions/checkout@v1
     - name: Build
-      run: cargo build --release
+      run: cargo build --release --locked
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v1-release
       with:
