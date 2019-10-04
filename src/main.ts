@@ -15,6 +15,21 @@ async function get_release_by_tag(tag: string, octokit: any, context: any, draft
     } catch (error) {
         // If this returns 404, we need to create the release first.
         if (error.status === 404) {
+            // if there is a draft release already, use that 
+            if (draft) {
+                const releases = await octokit.repos.listReleases({
+                    ...context.repo,
+                });
+                core.debug(`Found ${releases.length} releases, looking for draft release to piggyback..`)
+                for (let i = 0; i < releases.length; i += 1) {
+                    const release = releases[i];
+                    if (release.data.draft) {
+                        core.debug(`Found draft release in repo, name: ${release.data.name}`)
+                        return release;
+                    }
+                }
+            }
+            // otherwise create a release (draft if necessary)
             core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`)
             return await octokit.repos.createRelease({
                 ...context.repo,
