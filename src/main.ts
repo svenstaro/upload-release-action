@@ -20,11 +20,11 @@ async function get_release_by_tag(tag: string, octokit: any, context: any, draft
                 const releases = await octokit.repos.listReleases({
                     ...context.repo,
                 });
-                core.debug(`Found ${releases.length} releases, looking for draft release to piggyback..`)
-                for (let i = 0; i < releases.length; i += 1) {
-                    const release = releases[i];
-                    if (release.data.draft) {
-                        core.debug(`Found draft release in repo, name: ${release.data.name}`)
+                core.debug(`Found ${releases.data.length} releases, looking for draft release to piggyback..`)
+                for (let i = 0; i < releases.data.length; i += 1) {
+                    const release = releases.data[i];
+                    if (release.draft) {
+                        core.debug(`Found draft release in repo, name: ${release.name}`)
                         return release;
                     }
                 }

@@ -20,7 +20,9 @@ inputs:
   overwrite:
     description: 'Overwrite the release in case it already exists'
   file_glob:
-    description: 'if true the file can be a glob pattern, asset_name is ignored if this is true'
+    description: 'if true, the file can be a glob pattern, asset_name is ignored if this is true'
+  draft:
+    description: 'if true, marks the release as a draft'
 runs:
   using: 'node12'
   main: 'lib/main.js'
