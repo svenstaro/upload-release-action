@@ -15,7 +15,7 @@ You must provide:
 
 Optional Arguments
 
- - `file_glob`: If set to true, the file argument can be a glob pattern (asset_name is ignored in this case)
+ - `file_glob`: If set to true, the file argument can be a glob pattern (`asset_name` is ignored in this case)
 
 ## Usage
 
@@ -97,7 +97,7 @@ jobs:
         tag: ${{ github.ref }}
 ```
 
-Example with file_glob:
+Example with `file_glob`:
 ```yaml
 name: Publish
 on:
