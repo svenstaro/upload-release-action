@@ -83,8 +83,7 @@ async function run() {
         if (file_glob === "true") {
             const files = glob.sync(file);
             if (files.length > 0) {
-                for (let i = 0; i < files.length; i += 1) {
-                    const file = files[i];
+                for (let file of files) {
                     const asset_name = path.basename(file);
                     await upload_to_release(release, file, asset_name, tag, overwrite, octokit, context);
                 }
