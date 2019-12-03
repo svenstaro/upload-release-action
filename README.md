@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: hecrj/setup-rust-action@v1-release
+    - uses: hecrj/setup-rust-action@v1
       with:
         rust-version: stable
     - uses: actions/checkout@v1
