@@ -19,6 +19,8 @@ inputs:
     required: true
   overwrite:
     description: 'Overwrite the release in case it already exists'
+  file_glob:
+    description: 'if true the file can be a glob pattern, asset_name is ignored if this is true'
 runs:
   using: 'node12'
   main: 'lib/main.js'
