@@ -93,7 +93,7 @@ async function run() {
             }
         }
         else {
-            const asset_name = core.getInput('asset_name', { required: true });
+            const asset_name = core.getInput('asset_name', { required: true }).replace(/\$tag/g, tag);
             await upload_to_release(release, file, asset_name, tag, overwrite, octokit, context);
         }
     } catch (error) {
