@@ -1,3 +1,4 @@
-node_modules/
-__tests__/runner/*
+node_modules
 run.sh
+__tests__/runner/*
+lib/**/*
