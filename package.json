@@ -27,8 +27,8 @@
   "author": "Sven-Hendrik Haase",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.4",
-    "@actions/github": "^1.1.0",
+    "@actions/core": "^1.2.0",
+    "@actions/github": "^4.0.0",
     "glob": "^7.1.6"
   },
   "devDependencies": {

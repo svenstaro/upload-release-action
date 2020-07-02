@@ -40,7 +40,7 @@ async function upload_to_release(release: any, file: string, asset_name: string,
         ...context.repo,
         release_id: release.data.id,
     });
-    const duplicate_asset = assets.data.find(a => a.name === asset_name);
+    const duplicate_asset = assets.data.find((a: any) => a.name === asset_name);
     if (duplicate_asset !== undefined) {
         if (overwrite === "true") {
             core.debug(`An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`)
@@ -76,7 +76,7 @@ async function run() {
         const tag = core.getInput('tag', { required: true }).replace("refs/tags/", "");
         const overwrite = core.getInput('overwrite');
 
-        const octokit = new github.GitHub(token);
+        const octokit = github.getOctokit(token);
         const context = github.context;
         const release = await get_release_by_tag(tag, octokit, context);
 
