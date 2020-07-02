@@ -1,12 +1,17 @@
 {
   "name": "upload-release-action",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Upload files to a GitHub release",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "format": "prettier --write **/*.ts",
+    "format-check": "prettier --check **/*.ts",
+    "lint": "eslint src/**/*.ts",
+    "pack": "ncc build",
+    "test": "jest",
+    "all": "npm run build && npm run format && npm run lint && npm run pack && npm test"
   },
   "repository": {
     "type": "git",
@@ -22,16 +27,23 @@
   "author": "Sven-Hendrik Haase",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.0.0",
-    "@actions/github": "^1.0.0",
-    "glob": "^7.1.4"
+    "@actions/core": "^1.2.4",
+    "@actions/github": "^1.1.0",
+    "glob": "^7.1.6"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.13",
-    "@types/node": "^12.0.4",
-    "jest": "^24.8.0",
-    "jest-circus": "^24.7.1",
-    "ts-jest": "^24.0.2",
-    "typescript": "^3.5.1"
+    "@types/jest": "^24.9.1",
+    "@types/node": "^12.12.47",
+    "@typescript-eslint/parser": "^3.5.0",
+    "@zeit/ncc": "^0.22.3",
+    "eslint": "^7.3.1",
+    "eslint-plugin-github": "^4.0.1",
+    "eslint-plugin-jest": "^23.17.1",
+    "jest": "^24.9.0",
+    "jest-circus": "^24.9.0",
+    "js-yaml": "^3.14.0",
+    "prettier": "^2.0.5",
+    "ts-jest": "^24.3.0",
+    "typescript": "^3.9.6"
   }
 }
