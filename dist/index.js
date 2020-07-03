@@ -2226,7 +2226,6 @@ function upload_to_release(release, file, asset_name, tag, overwrite, octokit) {
             core.debug(`Skipping ${file}, since its not a file`);
             return;
         }
-        const file_size = stat.size;
         const file_bytes = fs.readFileSync(file);
         // Check for duplicates.
         const assets = yield octokit.repos.listReleaseAssets(Object.assign(Object.assign({}, github.context.repo), { release_id: release.data.id }));
@@ -2245,15 +2244,7 @@ function upload_to_release(release, file, asset_name, tag, overwrite, octokit) {
             core.debug(`No pre-existing asset called ${asset_name} found in release ${tag}. All good.`);
         }
         core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`);
-        yield octokit.repos.uploadReleaseAsset({
-            url: release.data.upload_url,
-            name: asset_name,
-            file: file_bytes,
-            headers: {
-                'content-type': 'binary/octet-stream',
-                'content-length': file_size
-            }
-        });
+        yield octokit.repos.uploadReleaseAsset(Object.assign(Object.assign({}, github.context.repo), { release_id: release.data.id, data: file_bytes }));
     });
 }
 function run() {
