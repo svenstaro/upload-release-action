@@ -18,6 +18,7 @@ Optional Arguments
 - `file_glob`: If set to true, the file argument can be a glob pattern (`asset_name` is ignored in this case) (Default: `false`)
 - `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
 - `prerelease`: Mark the release as a pre-release (Default: `false`).
+- `release_name`: Explicitly set a release name. (Defaults: same as `tag`).
 - `body`: Content of the release text (Defaut: `""`).
 
 ## Output variables

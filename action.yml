@@ -21,9 +21,11 @@ inputs:
   file_glob:
     description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
   prerelease:
-    description: 'Mark the release as a pre-release.'
+    description: 'Mark the release as a pre-release. Defaults to "false".'
+  release_name:
+    description: 'Explicitly set a release name. Defaults to empty which will cause the release to take the tag as name on GitHub.'
   body:
-    description: 'Content of the release text.'
+    description: 'Content of the release text. Empty by default.'
 outputs:
   browser_download_url:
     description: 'The publicly available URL of the asset.'
