@@ -41,9 +41,8 @@ jobs:
             ...context.repo,
             tag: "ci-test-${{ matrix.os }}",
           })
-          const { Octokit } = require("@octokit/core");
-          const octokit = new Octokit();
-          const actual = await octokit.request(release.data.assets[0].browser_download_url)
+          github.auth = undefined;
+          const actual = await github.request(release.data.assets[0].browser_download_url)
           const assert = require('assert').strict;
           assert.equal(expected, actual)
     - name: Clean up
