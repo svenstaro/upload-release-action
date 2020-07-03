@@ -44,7 +44,7 @@ jobs:
             ...context.repo,
             tag: "ci-test-${{ matrix.os }}",
           })
-          const actual = child_process.execSync(`curl ${release.data.assets[0].browser_download_url}`)
+          const actual = child_process.execSync(`curl -L ${release.data.assets[0].browser_download_url}`)
           console.log(actual.toString('utf8'))
           console.log(expected.toString('utf8'))
           assert.equal(expected, actual)
