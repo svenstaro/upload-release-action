@@ -23,4 +23,4 @@ inputs:
     description: 'if true the file can be a glob pattern, asset_name is ignored if this is true'
 runs:
   using: 'node12'
-  main: 'lib/main.js'
+  main: 'dist/index.js'
