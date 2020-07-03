@@ -28,7 +28,7 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: README.md
         asset_name: TEST.md
-        tag: ci-test-${{ matrix.os }}-${{ env.GITHUB_RUN_ID }}
+        tag: ci-test-${{ matrix.os }}-${{ gitub.run_id }}
         overwrite: true
         prerelease: true
         body: "rofl lol test"
@@ -44,7 +44,7 @@ jobs:
           const expected = fs.readFileSync("README.md")
           const release = await github.repos.getReleaseByTag({
             ...context.repo,
-            tag: "ci-test-${{ matrix.os }}-${{ env.GITHUB_RUN_ID }}",
+            tag: "ci-test-${{ matrix.os }}-${{ gitub.run_id }}",
           })
           assert.deepStrictEqual(release.data.prerelease, true)
           assert.deepStrictEqual(release.data.body, "rofl lol test")
@@ -59,7 +59,7 @@ jobs:
         script: |
           const release = await github.repos.getReleaseByTag({
             ...context.repo,
-            tag: "ci-test-${{ matrix.os }}-${{ env.GITHUB_RUN_ID }}",
+            tag: "ci-test-${{ matrix.os }}-${{ gitub.run_id }}",
           })
           await github.repos.deleteRelease({
             ...context.repo,
@@ -67,5 +67,5 @@ jobs:
           })
           await github.git.deleteRef({
             ...context.repo,
-            ref: "tags/ci-test-${{ matrix.os }}-${{ env.GITHUB_RUN_ID }}",
+            ref: "tags/ci-test-${{ matrix.os }}-${{ gitub.run_id }}",
           })
