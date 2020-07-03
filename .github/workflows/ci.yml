@@ -45,10 +45,7 @@ jobs:
             tag: "ci-test-${{ matrix.os }}",
           })
           const actual = child_process.execSync(`curl -Ls ${release.data.assets[0].browser_download_url}`)
-          console.log(release.data.assets[0].browser_download_url)
-          console.log(actual)
-          console.log(actual.toString())
-          assert.equal(expected, actual)
+          assert.deepStrictEqual(expected, actual)
     # - name: Clean up
     #   if: ${{ always() }}
     #   uses: actions/github-script@v2
