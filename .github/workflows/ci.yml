@@ -37,6 +37,7 @@ jobs:
         script: |
           const fs = require('fs')
           const child_process = require('child_process');
+          const assert = require('assert').strict;
 
           const expected = fs.readFileSync("README.md")
           const release = await github.repos.getReleaseByTag({
@@ -44,7 +45,8 @@ jobs:
             tag: "ci-test-${{ matrix.os }}",
           })
           const actual = child_process.execSync(`curl ${release.data.assets[0].browser_download_url}`)
-          const assert = require('assert').strict;
+          console.log(actual)
+          console.log(expected)
           assert.equal(expected, actual)
     - name: Clean up
       if: ${{ always() }}
