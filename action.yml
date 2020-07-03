@@ -20,8 +20,6 @@ inputs:
     description: 'Overwrite the release in case it already exists.'
   file_glob:
     description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
-  draft:
-    description: 'Mark the release as a draft. Defaults to "false".'
   prerelease:
     description: 'Mark the release as a pre-release. Defaults to "false".'
   release_name:

@@ -13,7 +13,6 @@ type UploadAssetResp = Endpoints['POST /repos/:owner/:repo/releases/:release_id/
 
 async function get_release_by_tag(
   tag: string,
-  draft: boolean,
   prerelease: boolean,
   release_name: string,
   body: string,
@@ -34,7 +33,6 @@ async function get_release_by_tag(
       return await octokit.repos.createRelease({
         ...github.context.repo,
         tag_name: tag,
-        draft: draft,
         prerelease: prerelease,
         release_name: release_name,
         body: body
@@ -110,7 +108,6 @@ async function run(): Promise<void> {
 
     const file_glob = core.getInput('file_glob') == 'true' ? true : false
     const overwrite = core.getInput('overwrite') == 'true' ? true : false
-    const draft = core.getInput('draft') == 'true' ? true : false
     const prerelease = core.getInput('prerelease') == 'true' ? true : false
     const release_name = core.getInput('release_name')
     const body = core.getInput('body')
@@ -118,7 +115,6 @@ async function run(): Promise<void> {
     const octokit: Octokit = github.getOctokit(token)
     const release = await get_release_by_tag(
       tag,
-      draft,
       prerelease,
       release_name,
       body,
