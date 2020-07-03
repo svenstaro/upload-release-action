@@ -41,7 +41,11 @@ jobs:
             ...context.repo,
             tag: "ci-test-${{ matrix.os }}",
           })
-          const actual = await github.request(release.data.assets[0].browser_download_url)
+          const actual = await github.request(release.data.assets[0].browser_download_url, {
+            headers: {
+              Authorization: ""
+            }
+          })
           const assert = require('assert').strict;
           assert.equal(expected, actual)
     - name: Clean up
@@ -56,5 +60,9 @@ jobs:
           })
           await github.repos.deleteRelease({
             ...context.repo,
-            release_id: release.data.id
+            release_id: release.data.id,
+          })
+          await github.repos.deleteRef({
+            ...context.repo,
+            ref: "ci-test-${{ matrix.os }}",
           })
