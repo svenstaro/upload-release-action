@@ -1,0 +1,26 @@
+name: "PR Checks"
+on: [pull_request, push]
+
+jobs:
+  build: # make sure build/ci work properly
+    name: Publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        npm install
+        npm run all
+
+  # test: # make sure the action works on a clean machine without building
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest, windows-latest, macos-latest]
+  #   steps:
+  #   - uses: actions/checkout@v1
+  #   - uses: ./
+  #     with:
+  #       milliseconds: 1000
