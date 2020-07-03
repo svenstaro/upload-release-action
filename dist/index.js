@@ -2245,7 +2245,6 @@ function upload_to_release(release, file, asset_name, tag, overwrite, octokit) {
             core.debug(`No pre-existing asset called ${asset_name} found in release ${tag}. All good.`);
         }
         core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`);
-        console.log(file_bytes.toString());
         yield octokit.repos.uploadReleaseAsset({
             url: release.data.upload_url,
             name: asset_name,

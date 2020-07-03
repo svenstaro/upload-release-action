@@ -46,21 +46,21 @@ jobs:
           })
           const actual = child_process.execSync(`curl -Ls ${release.data.assets[0].browser_download_url}`)
           assert.deepStrictEqual(expected, actual)
-    # - name: Clean up
-    #   if: ${{ always() }}
-    #   uses: actions/github-script@v2
-    #   with:
-    #     github-token: ${{ secrets.GITHUB_TOKEN }}
-    #     script: |
-    #       const release = await github.repos.getReleaseByTag({
-    #         ...context.repo,
-    #         tag: "ci-test-${{ matrix.os }}",
-    #       })
-    #       await github.repos.deleteRelease({
-    #         ...context.repo,
-    #         release_id: release.data.id,
-    #       })
-    #       await github.git.deleteRef({
-    #         ...context.repo,
-    #         ref: "ci-test-${{ matrix.os }}",
-    #       })
+    - name: Clean up
+      if: ${{ always() }}
+      uses: actions/github-script@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const release = await github.repos.getReleaseByTag({
+            ...context.repo,
+            tag: "ci-test-${{ matrix.os }}",
+          })
+          await github.repos.deleteRelease({
+            ...context.repo,
+            release_id: release.data.id,
+          })
+          await github.git.deleteRef({
+            ...context.repo,
+            ref: "ci-test-${{ matrix.os }}",
+          })
