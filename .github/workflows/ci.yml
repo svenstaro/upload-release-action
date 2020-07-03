@@ -45,8 +45,8 @@ jobs:
             tag: "ci-test-${{ matrix.os }}",
           })
           const actual = child_process.execSync(`curl ${release.data.assets[0].browser_download_url}`)
-          console.log(actual)
-          console.log(expected)
+          console.log(actual.toString('utf8'))
+          console.log(expected.toString('utf8'))
           assert.equal(expected, actual)
     - name: Clean up
       if: ${{ always() }}

@@ -28,7 +28,9 @@ async function get_release_by_tag(
       )
       return await octokit.repos.createRelease({
         ...github.context.repo,
-        tag_name: tag
+        tag_name: tag,
+        draft: true,
+        prerelease: false,
       })
     } else {
       throw error
