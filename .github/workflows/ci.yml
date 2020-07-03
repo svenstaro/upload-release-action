@@ -30,19 +30,21 @@ jobs:
         asset_name: TEST.md
         tag: ci-test-${{ matrix.os }}
         overwrite: true
+    - run: npm install node-fetch
     - name: Check that the uploaded asset is readable
       uses: actions/github-script@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const fs = require('fs')
+          const fetch = require('node-fetch');
+
           const expected = fs.readFileSync("README.md")
           const release = await github.repos.getReleaseByTag({
             ...context.repo,
             tag: "ci-test-${{ matrix.os }}",
           })
-          github.auth = undefined;
-          const actual = await github.request(release.data.assets[0].browser_download_url)
+          const actual = await fetch(release.data.assets[0].browser_download_url).text()
           const assert = require('assert').strict;
           assert.equal(expected, actual)
     - name: Clean up
