@@ -6,7 +6,7 @@ on:
 
 jobs:
   actions-tagger:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: Actions-R-Us/actions-tagger@latest
         env:
