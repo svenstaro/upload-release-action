@@ -45,7 +45,7 @@ jobs:
           console.log(release.data.assets)
           const actual = await github.repos.getReleaseAssert({
             ...context.repo,
-            release.data.assets[0].id,
+            release_id: release.data.assets[0].id,
           })
           assert.equal(expected, actual)
     - name: Clean up
