@@ -14,13 +14,17 @@ jobs:
         npm install
         npm run all
 
-  # test: # make sure the action works on a clean machine without building
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       os: [ubuntu-latest, windows-latest, macos-latest]
-  #   steps:
-  #   - uses: actions/checkout@v1
-  #   - uses: ./
-  #     with:
-  #       milliseconds: 1000
+  test: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v1
+    - uses: ./
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: README.md
+        asset_name: TEST.md
+        tag: ci-test
+        overwrite: true
