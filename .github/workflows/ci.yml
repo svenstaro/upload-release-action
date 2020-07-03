@@ -62,5 +62,5 @@ jobs:
           })
           await github.git.deleteRef({
             ...context.repo,
-            ref: "refs/tags/ci-test-${{ matrix.os }}",
+            ref: "tags/ci-test-${{ matrix.os }}",
           })
