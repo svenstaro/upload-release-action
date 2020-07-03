@@ -80,11 +80,11 @@ async function upload_to_release(
   }
 
   core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`)
-  console.log(file_bytes)
+  console.log(file_bytes.toString())
   await octokit.repos.uploadReleaseAsset({
     url: release.data.upload_url,
     name: asset_name,
-    file: file_bytes,
+    data: file_bytes,
     headers: {
       'content-type': 'binary/octet-stream',
       'content-length': file_size
