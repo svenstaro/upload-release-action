@@ -30,6 +30,8 @@ jobs:
         asset_name: TEST.md
         tag: ci-test-${{ matrix.os }}
         overwrite: true
+        prerelease: true
+        body: "rofl lol test"
     - name: Check that the uploaded asset is readable
       uses: actions/github-script@v2
       with:
@@ -44,6 +46,8 @@ jobs:
             ...context.repo,
             tag: "ci-test-${{ matrix.os }}",
           })
+          assert.deepStrictEqual(release.data.prerelease, true)
+          assert.deepStrictEqual(release.data.body, "rofl lol test")
           const actual = child_process.execSync(`curl -Ls ${release.data.assets[0].browser_download_url}`)
           assert.deepStrictEqual(expected, actual)
     - name: Clean up

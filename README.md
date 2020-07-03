@@ -7,15 +7,21 @@ It runs on all operating systems types offered by GitHub.
 
 You must provide:
 
-- `repo_token`: Usually you'll want to set this to `${{ secrets.GITHUB_TOKEN }}`
+- `repo_token`: Usually you'll want to set this to `${{ secrets.GITHUB_TOKEN }}`.
 - `file`: A local file to be uploaded as the asset.
 - `asset_name`: The name the file gets as an asset on a release. Use `$tag` to include the tag name.
 - `tag`: The tag to upload into. If you want the current event's tag, use `${{ github.ref }}` (the `refs/tags/` prefix will be automatically stripped).
-- `overwrite`: If an asset with the same name already exists, overwrite it.
 
 Optional Arguments
 
- - `file_glob`: If set to true, the file argument can be a glob pattern (`asset_name` is ignored in this case)
+- `file_glob`: If set to true, the file argument can be a glob pattern (`asset_name` is ignored in this case) (Default: `false`)
+- `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
+- `prerelease`: Mark the release as a pre-release (Default: `false`).
+- `body`: Content of the release text (Defaut: `""`).
+
+## Output variables
+
+- `browser_download_url`: The publicly available URL of the asset.
 
 ## Usage
 
@@ -49,6 +55,7 @@ jobs:
         asset_name: mything
         tag: ${{ github.ref }}
         overwrite: true
+        body: "This is my release text"
 ```
 
 Complex example with more operating systems:
