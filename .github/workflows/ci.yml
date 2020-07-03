@@ -48,6 +48,7 @@ jobs:
           })
           assert.deepStrictEqual(release.data.prerelease, true)
           assert.deepStrictEqual(release.data.body, "rofl lol test")
+          assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
           const actual = child_process.execSync(`curl -Ls ${release.data.assets[0].browser_download_url}`)
           assert.deepStrictEqual(expected, actual)
     - name: Clean up
@@ -64,16 +65,11 @@ jobs:
             ...context.repo,
             release_id: release.data.id,
           })
-          await github.git.deleteRef({
-            ...context.repo,
-            ref: "tags/ci-test-${{ matrix.os }}",
-          })
     - name: Make test draft release
       uses: ./
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: README.md
-        asset_name: TEST.md
         tag: ci-test-${{ matrix.os }}
         overwrite: true
         draft: true
@@ -85,6 +81,8 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
+          // This uses a draft release and as such doesn't create its own tags.
+          // We're re-using the ci-test tags created by the previous execution of this action.
           const fs = require('fs')
           const child_process = require('child_process');
           const assert = require('assert').strict;
@@ -98,6 +96,7 @@ jobs:
           assert.deepStrictEqual(release.data.draft, true)
           assert.deepStrictEqual(release.data.prerelease, false)
           assert.deepStrictEqual(release.data.body, "rofl lol test")
+          assert.deepStrictEqual(release.data.assets[0].name, "README.md")
           const actual = child_process.execSync(`curl -Ls ${release.data.assets[0].browser_download_url}`)
           assert.deepStrictEqual(expected, actual)
     - name: Clean up
@@ -113,4 +112,11 @@ jobs:
           await github.repos.deleteRelease({
             ...context.repo,
             release_id: release.data.id,
+          })
+
+          // As per above, even though this particular invocation didn't create tags as it was a draft release,
+          // we used them from the run before and we're now cleaning them up.
+          await github.git.deleteRef({
+            ...context.repo,
+            ref: "tags/ci-test-${{ matrix.os }}",
           })
