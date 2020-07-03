@@ -43,6 +43,9 @@ jobs:
           })
           const actual = await github.repos.getReleaseAsset({
             ...context.repo,
+            headers: {
+              Accept: application/octet-stream
+            },
             asset_id: release.data.assets[0].id,
           })
           const assert = require('assert').strict;
