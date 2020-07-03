@@ -30,7 +30,7 @@ async function get_release_by_tag(
         ...github.context.repo,
         tag_name: tag,
         draft: true,
-        prerelease: false,
+        prerelease: false
       })
     } else {
       throw error
