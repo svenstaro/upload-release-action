@@ -20,7 +20,14 @@ inputs:
   overwrite:
     description: 'Overwrite the release in case it already exists'
   file_glob:
-    description: 'if true the file can be a glob pattern, asset_name is ignored if this is true'
+    description: 'If true the file can be a glob pattern, asset_name is ignored if this is true'
+  prerelease:
+    description: 'Mark the release as a pre-release'
+  body:
+    description: 'Content of the release text'
+outputs:
+  browser_download_url:
+    description: 'The publicly available URL of the asset.'
 runs:
   using: 'node12'
   main: 'dist/index.js'
