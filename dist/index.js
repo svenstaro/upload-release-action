@@ -2284,9 +2284,9 @@ function run() {
                 }
             }
             else {
-                const asset_name = core
-                    .getInput('asset_name', { required: true })
-                    .replace(/\$tag/g, tag);
+                const asset_name = core.getInput('asset_name') !== ''
+                    ? core.getInput('asset_name').replace(/\$tag/g, tag)
+                    : path.basename(file);
                 const asset_download_url = yield upload_to_release(release, file, asset_name, tag, overwrite, octokit);
                 core.setOutput('browser_download_url', asset_download_url);
             }

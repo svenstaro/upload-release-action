@@ -131,9 +131,10 @@ async function run(): Promise<void> {
         core.setFailed('No files matching the glob pattern found.')
       }
     } else {
-      const asset_name = core
-        .getInput('asset_name', {required: true})
-        .replace(/\$tag/g, tag)
+      const asset_name =
+        core.getInput('asset_name') !== ''
+          ? core.getInput('asset_name').replace(/\$tag/g, tag)
+          : path.basename(file)
       const asset_download_url = await upload_to_release(
         release,
         file,

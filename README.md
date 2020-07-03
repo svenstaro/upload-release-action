@@ -9,11 +9,12 @@ You must provide:
 
 - `repo_token`: Usually you'll want to set this to `${{ secrets.GITHUB_TOKEN }}`.
 - `file`: A local file to be uploaded as the asset.
-- `asset_name`: The name the file gets as an asset on a release. Use `$tag` to include the tag name.
 - `tag`: The tag to upload into. If you want the current event's tag, use `${{ github.ref }}` (the `refs/tags/` prefix will be automatically stripped).
 
 Optional Arguments
 
+- `asset_name`: The name the file gets as an asset on a release. Use `$tag` to include the tag name. When not provided it will default to the filename.
+                This is not used if `file_glob` is set to `true`.
 - `file_glob`: If set to true, the file argument can be a glob pattern (`asset_name` is ignored in this case) (Default: `false`)
 - `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
 - `prerelease`: Mark the release as a pre-release (Default: `false`).

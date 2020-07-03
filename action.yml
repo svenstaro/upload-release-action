@@ -6,25 +6,24 @@ branding:
   color: orange
 inputs:
   repo_token:
-    description: 'GitHub token'
+    description: 'GitHub token.'
     required: true
   file:
-    description: 'Local file to upload'
-    required: true
-  asset_name:
-    description: 'Name of the asset'
+    description: 'Local file to upload.'
     required: true
   tag:
-    description: 'Tag to use as a release'
+    description: 'Tag to use as a release.'
     required: true
+  asset_name:
+    description: 'Name of the asset. When not provided will use the file name. Unused if file_glob is set to "true".'
   overwrite:
-    description: 'Overwrite the release in case it already exists'
+    description: 'Overwrite the release in case it already exists.'
   file_glob:
-    description: 'If true the file can be a glob pattern, asset_name is ignored if this is true'
+    description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
   prerelease:
-    description: 'Mark the release as a pre-release'
+    description: 'Mark the release as a pre-release.'
   body:
-    description: 'Content of the release text'
+    description: 'Content of the release text.'
 outputs:
   browser_download_url:
     description: 'The publicly available URL of the asset.'
