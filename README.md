@@ -38,10 +38,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: hecrj/setup-rust-action@v1
-      with:
-        rust-version: stable
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
@@ -82,10 +79,7 @@ jobs:
             asset_name: mything-macos-amd64
 
     steps:
-    - uses: hecrj/setup-rust-action@v1
-      with:
-        rust-version: stable
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Build
       run: cargo build --release --locked
     - name: Upload binaries to release
@@ -109,10 +103,7 @@ jobs:
     name: Publish binaries
     runs-on: ubuntu-latest
     steps:
-    - uses: hecrj/setup-rust-action@v1
-      with:
-        rust-version: stable
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
