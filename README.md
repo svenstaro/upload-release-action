@@ -17,8 +17,10 @@ Optional Arguments
                 This is not used if `file_glob` is set to `true`.
 - `file_glob`: If set to true, the file argument can be a glob pattern (`asset_name` is ignored in this case) (Default: `false`)
 - `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
+- `draft`: Mark the release as a draft (Default: `false`). If this is set to `true` then the release won't receive automatically receice a name as the
+           Github API only matches the tag upon final release.
 - `prerelease`: Mark the release as a pre-release (Default: `false`).
-- `release_name`: Explicitly set a release name. (Defaults: same as `tag`).
+- `release_name`: Explicitly set a release name. (Defaults: implicitly same as `tag` via GitHub API).
 - `body`: Content of the release text (Defaut: `""`).
 
 ## Output variables

@@ -2201,7 +2201,7 @@ const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const path = __importStar(__webpack_require__(622));
 const glob = __importStar(__webpack_require__(402));
-function get_release_by_tag(tag, prerelease, release_name, body, octokit) {
+function get_release_by_tag(tag, draft, prerelease, release_name, body, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.debug(`Getting release by tag ${tag}.`);
@@ -2211,7 +2211,7 @@ function get_release_by_tag(tag, prerelease, release_name, body, octokit) {
             // If this returns 404, we need to create the release first.
             if (error.status === 404) {
                 core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
-                return yield octokit.repos.createRelease(Object.assign(Object.assign({}, github.context.repo), { tag_name: tag, prerelease: prerelease, release_name: release_name, body: body }));
+                return yield octokit.repos.createRelease(Object.assign(Object.assign({}, github.context.repo), { tag_name: tag, draft: draft, prerelease: prerelease, release_name: release_name, body: body }));
             }
             else {
                 throw error;
@@ -2266,11 +2266,12 @@ function run() {
             const tag = core.getInput('tag', { required: true }).replace('refs/tags/', '');
             const file_glob = core.getInput('file_glob') == 'true' ? true : false;
             const overwrite = core.getInput('overwrite') == 'true' ? true : false;
+            const draft = core.getInput('draft') == 'true' ? true : false;
             const prerelease = core.getInput('prerelease') == 'true' ? true : false;
             const release_name = core.getInput('release_name');
             const body = core.getInput('body');
             const octokit = github.getOctokit(token);
-            const release = yield get_release_by_tag(tag, prerelease, release_name, body, octokit);
+            const release = yield get_release_by_tag(tag, draft, prerelease, release_name, body, octokit);
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {
