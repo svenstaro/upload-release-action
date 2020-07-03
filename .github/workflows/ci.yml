@@ -16,16 +16,44 @@ jobs:
 
   test: # make sure the action works on a clean machine without building
     name: E2E test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v1
-    - uses: ./
+    - uses: actions/checkout@v2
+    - name: Make test release
+      uses: ./
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: README.md
         asset_name: TEST.md
-        tag: ci-test
+        tag: ci-test-${{ matrix.os }}
         overwrite: true
+    - name: Check that the uploaded asset is readable
+      uses: actions/github-script@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs')
+          const expected = fs.readFileSync("README.md")
+          const release = github.repos.getReleaseByTag({
+            ...context.repo,
+            tag: "ci-test-${{ matrix.os }}",
+          })
+          const actual = await github.request(release.assets[0].browser_download_url)
+          assert.equal(expected, actual)
+    - name: Clean up
+      if: ${{ always() }}
+      uses: actions/github-script@v2
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const release = github.repos.getReleaseByTag({
+            ...context.repo,
+            tag: "ci-test-${{ matrix.os }}",
+          })
+          github.repos.deleteRelease({
+            ...context.repo,
+            release_id: release.id
+          })
