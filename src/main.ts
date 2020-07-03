@@ -53,7 +53,7 @@ async function upload_to_release(
   const file_bytes = fs.readFileSync(file)
 
   // Check for duplicates.
-  const assets: RepoAssetsResp = await octokit.repos.listAssetsForRelease({
+  const assets: RepoAssetsResp = await octokit.repos.listReleaseAssets({
     ...github.context.repo,
     release_id: release.data.id
   })
