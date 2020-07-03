@@ -41,9 +41,7 @@ jobs:
             ...context.repo,
             tag: "ci-test-${{ matrix.os }}",
           })
-          console.log(release.data)
-          console.log(release.data.assets)
-          const actual = await github.repos.getReleaseAssert({
+          const actual = await github.repos.getReleaseAsset({
             ...context.repo,
             release_id: release.data.assets[0].id,
           })
