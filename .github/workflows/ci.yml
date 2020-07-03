@@ -3,7 +3,7 @@ on: [pull_request, push]
 
 jobs:
   build: # make sure build/ci work properly
-    name: Publish for ${{ matrix.os }}
+    name: CI on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -15,6 +15,7 @@ jobs:
         npm run all
 
   test: # make sure the action works on a clean machine without building
+    name: E2E test
     runs-on: ubuntu-latest
     strategy:
       matrix:
