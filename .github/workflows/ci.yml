@@ -60,7 +60,7 @@ jobs:
             ...context.repo,
             release_id: release.data.id,
           })
-          await github.repos.deleteRef({
+          await github.git.deleteRef({
             ...context.repo,
             ref: "ci-test-${{ matrix.os }}",
           })
