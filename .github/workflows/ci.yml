@@ -37,7 +37,7 @@ jobs:
         script: |
           const fs = require('fs')
           const expected = fs.readFileSync("README.md")
-          const release = github.repos.getReleaseByTag({
+          const release = await github.repos.getReleaseByTag({
             ...context.repo,
             tag: "ci-test-${{ matrix.os }}",
           })
@@ -51,11 +51,11 @@ jobs:
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
-          const release = github.repos.getReleaseByTag({
+          const release = await github.repos.getReleaseByTag({
             ...context.repo,
             tag: "ci-test-${{ matrix.os }}",
           })
-          github.repos.deleteRelease({
+          await github.repos.deleteRelease({
             ...context.repo,
             release_id: release.id
           })
