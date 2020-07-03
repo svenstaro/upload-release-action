@@ -41,9 +41,9 @@ jobs:
             ...context.repo,
             tag: "ci-test-${{ matrix.os }}",
           })
-          console.log(release)
-          console.log(release.assets)
-          const actual = await github.request(release.assets[0].browser_download_url)
+          console.log(release.data)
+          console.log(release.data.assets)
+          const actual = await github.request(release.data.assets[0].browser_download_url)
           assert.equal(expected, actual)
     - name: Clean up
       if: ${{ always() }}
@@ -57,5 +57,5 @@ jobs:
           })
           await github.repos.deleteRelease({
             ...context.repo,
-            release_id: release.id
+            release_id: release.data.id
           })
