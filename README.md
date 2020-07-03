@@ -115,3 +115,14 @@ jobs:
         overwrite: true
         file_glob: true
 ```
+
+## Releasing
+
+To release this Action:
+
+- Bump version in `package.json`
+- npm run all
+- git commit -am <version>
+- git tag -sm <version> <version>
+- git push --follow-tags
+- Go to https://github.com/svenstaro/upload-release-action/releases and publish the new version
