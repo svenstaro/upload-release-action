@@ -51,6 +51,7 @@ async function upload_to_release(
     core.debug(`Skipping ${file}, since its not a file`)
     return
   }
+  const file_size = stat.size
   const file_bytes = fs.readFileSync(file)
 
   // Check for duplicates.
@@ -79,10 +80,15 @@ async function upload_to_release(
   }
 
   core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`)
+  console.log(file_bytes)
   await octokit.repos.uploadReleaseAsset({
-    ...github.context.repo,
-    release_id: release.data.id,
-    data: file_bytes
+    url: release.data.upload_url,
+    name: asset_name,
+    file: file_bytes,
+    headers: {
+      'content-type': 'binary/octet-stream',
+      'content-length': file_size
+    }
   })
 }
 
