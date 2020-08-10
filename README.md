@@ -9,7 +9,7 @@ You must provide:
 
 - `repo_token`: Usually you'll want to set this to `${{ secrets.GITHUB_TOKEN }}`.
 - `file`: A local file to be uploaded as the asset.
-- `tag`: The tag to upload into. If you want the current event's tag, use `${{ github.ref }}` (the `refs/tags/` prefix will be automatically stripped).
+- `tag`: The tag to upload into. If you want the current event's tag or branch name, use `${{ github.ref }}` (the `refs/tags/` and `refs/heads/` prefixes will be automatically stripped).
 
 Optional Arguments
 
