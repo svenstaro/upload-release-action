@@ -2263,7 +2263,7 @@ function run() {
             // Get the inputs from the workflow file: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
             const token = core.getInput('repo_token', { required: true });
             const file = core.getInput('file', { required: true });
-            const tag = core.getInput('tag', { required: true }).replace('refs/tags/', '');
+            const tag = core.getInput('tag', { required: true }).replace('refs/tags/', '').replace('refs/heads/', '');
             const file_glob = core.getInput('file_glob') == 'true' ? true : false;
             const overwrite = core.getInput('overwrite') == 'true' ? true : false;
             const prerelease = core.getInput('prerelease') == 'true' ? true : false;

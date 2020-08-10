@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.1.0] - 2020-08-10
+- Strip refs/heads/ from the input tag [#23](https://github.com/svenstaro/upload-release-action/pull/23) (thanks @OmarEmaraDev)
+
 ## [2.0.0] - 2020-07-03
 - Add `prerelease` input parameter. Setting this marks the created release as a pre-release.
 - Add `release_name` input parameter. Setting this explicitly sets the title of the release.
