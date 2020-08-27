@@ -26,6 +26,8 @@ inputs:
     description: 'Explicitly set a release name. Defaults to empty which will cause the release to take the tag as name on GitHub.'
   body:
     description: 'Content of the release text. Empty by default.'
+  repo_name:
+    description: 'Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted. If the repository is other than the current, it is required to create a personal access token with `repo`, `user`, `admin:repo_hook` scopes to the foreign repository and add it as a secret. Defaults to the current repository'
 outputs:
   browser_download_url:
     description: 'The publicly available URL of the asset.'
