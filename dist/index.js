@@ -2211,7 +2211,7 @@ function get_release_by_tag(tag, prerelease, release_name, body, octokit) {
             // If this returns 404, we need to create the release first.
             if (error.status === 404) {
                 core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
-                return yield octokit.repos.createRelease(Object.assign(Object.assign({}, github.context.repo), { tag_name: tag, prerelease: prerelease, release_name: release_name, body: body }));
+                return yield octokit.repos.createRelease(Object.assign(Object.assign({}, github.context.repo), { tag_name: tag, prerelease: prerelease, name: release_name, body: body }));
             }
             else {
                 throw error;
@@ -2263,7 +2263,10 @@ function run() {
             // Get the inputs from the workflow file: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
             const token = core.getInput('repo_token', { required: true });
             const file = core.getInput('file', { required: true });
-            const tag = core.getInput('tag', { required: true }).replace('refs/tags/', '').replace('refs/heads/', '');
+            const tag = core
+                .getInput('tag', { required: true })
+                .replace('refs/tags/', '')
+                .replace('refs/heads/', '');
             const file_glob = core.getInput('file_glob') == 'true' ? true : false;
             const overwrite = core.getInput('overwrite') == 'true' ? true : false;
             const prerelease = core.getInput('prerelease') == 'true' ? true : false;

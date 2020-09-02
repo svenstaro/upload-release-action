@@ -34,7 +34,7 @@ async function get_release_by_tag(
         ...github.context.repo,
         tag_name: tag,
         prerelease: prerelease,
-        release_name: release_name,
+        name: release_name,
         body: body
       })
     } else {
