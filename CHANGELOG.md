@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.1.1] - 2020-09-25
+- Fix `release_name` option [#27](https://github.com/svenstaro/upload-release-action/pull/27) (thanks @kittaakos)
+
 ## [2.1.0] - 2020-08-10
 - Strip refs/heads/ from the input tag [#23](https://github.com/svenstaro/upload-release-action/pull/23) (thanks @OmarEmaraDev)
 
