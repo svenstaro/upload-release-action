@@ -19,7 +19,8 @@ Optional Arguments
 - `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
 - `prerelease`: Mark the release as a pre-release (Default: `false`).
 - `release_name`: Explicitly set a release name. (Defaults: implicitly same as `tag` via GitHub API).
-- `body`: Content of the release text (Defaut: `""`).
+- `body`: Content of the release text (Default: `""`).
+- `repo_name`: Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted. If the repository is other than the current, it is required to create a personal access token with `repo`, `user`, `admin:repo_hook` scopes to the foreign repository and add it as a secret. (Default: current repository).
 
 ## Output variables
 
@@ -101,12 +102,14 @@ jobs:
 ```
 
 Example with `file_glob`:
+
 ```yaml
 name: Publish
 on:
   push:
     tags:
       - '*'
+
 jobs:
   build:
     name: Publish binaries
@@ -123,6 +126,39 @@ jobs:
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
+```
+
+Example for creating a release in a foreign repository using `repo_name`:
+
+```yaml
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Publish binaries
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --release
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_name: owner/repository-name
+        # A personal access token for the GitHub repository in which the release will be created and edited.
+        # It is recommended to create the access token with the following scopes: `repo, user, admin:repo_hook`.
+        repo_token: ${{ secrets.YOUR_PERSONAL_ACCESS_TOKEN }}
+        file: target/release/mything
+        asset_name: mything
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: "This is my release text"
 ```
 
 ## Releasing
