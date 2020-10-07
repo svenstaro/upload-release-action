@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.0] - 2020-10-07
+- Add support for ceating a new release in a foreign repository [#25](https://github.com/svenstaro/upload-release-action/pull/25) (thanks @kittaakos)
+- Upgrade all deps
+
 ## [2.1.1] - 2020-09-25
 - Fix `release_name` option [#27](https://github.com/svenstaro/upload-release-action/pull/27) (thanks @kittaakos)
 
