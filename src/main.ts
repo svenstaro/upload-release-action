@@ -6,7 +6,7 @@ import * as github from '@actions/github'
 import * as path from 'path'
 import * as glob from 'glob'
 
-type RepoAssetsResp = Endpoints['GET /repos/:owner/:repo/releases/:release_id/assets']['response']
+type RepoAssetsResp = Endpoints['GET /repos/:owner/:repo/releases/:release_id/assets']['response']['data']
 type ReleaseByTagResp = Endpoints['GET /repos/:owner/:repo/releases/tags/:tag']['response']
 type CreateReleaseResp = Endpoints['POST /repos/:owner/:repo/releases']['response']
 type UploadAssetResp = Endpoints['POST /repos/:owner/:repo/releases/:release_id/assets{?name,label}']['response']
@@ -60,11 +60,14 @@ async function upload_to_release(
   const file_bytes = fs.readFileSync(file)
 
   // Check for duplicates.
-  const assets: RepoAssetsResp = await octokit.repos.listReleaseAssets({
-    ...repo(),
-    release_id: release.data.id
-  })
-  const duplicate_asset = assets.data.find(a => a.name === asset_name)
+  const assets: RepoAssetsResp = await octokit.paginate(
+    octokit.repos.listReleaseAssets,
+    {
+      ...repo(),
+      release_id: release.data.id
+    }
+  )
+  const duplicate_asset = assets.find(a => a.name === asset_name)
   if (duplicate_asset !== undefined) {
     if (overwrite) {
       core.debug(

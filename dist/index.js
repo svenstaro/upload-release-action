@@ -2291,8 +2291,8 @@ function upload_to_release(release, file, asset_name, tag, overwrite, octokit) {
         const file_size = stat.size;
         const file_bytes = fs.readFileSync(file);
         // Check for duplicates.
-        const assets = yield octokit.repos.listReleaseAssets(Object.assign(Object.assign({}, repo()), { release_id: release.data.id }));
-        const duplicate_asset = assets.data.find(a => a.name === asset_name);
+        const assets = yield octokit.paginate(octokit.repos.listReleaseAssets, Object.assign(Object.assign({}, repo()), { release_id: release.data.id }));
+        const duplicate_asset = assets.find(a => a.name === asset_name);
         if (duplicate_asset !== undefined) {
             if (overwrite) {
                 core.debug(`An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`);
