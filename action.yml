@@ -1,36 +1,50 @@
-name: 'Upload files to a GitHub release'
-description: 'Upload files to a GitHub release (cross-platform)'
-author: 'Sven-Hendrik Haase'
+name: "Upload files to a GitHub release"
+description: "Upload files to a GitHub release (cross-platform)"
+author: "Sven-Hendrik Haase"
 branding:
   icon: archive
   color: orange
 inputs:
   repo_token:
-    description: 'GitHub token.'
     required: true
-  file:
-    description: 'Local file to upload.'
-    required: true
+    description: "GitHub token."
   tag:
-    description: 'Tag to use as a release.'
     required: true
-  asset_name:
-    description: 'Name of the asset. When not provided will use the file name. Unused if file_glob is set to "true".'
-  overwrite:
-    description: 'Overwrite the release in case it already exists.'
+    description: "Tag of the release."
+  file:
+    required: true
+    description: |
+      Path to the file to upload.
+      If this is a glob pattern then set file_glob to true.
   file_glob:
-    description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
-  prerelease:
-    description: 'Mark the release as a pre-release. Defaults to "false".'
-  release_name:
-    description: 'Explicitly set a release name. Defaults to empty which will cause the release to take the tag as name on GitHub.'
-  body:
-    description: 'Content of the release text. Empty by default.'
+    required: false
+    description: |
+      If true the file can be a glob pattern.
+      asset_name will be ignored if this is true.
+    default: "false"
+  asset_name:
+    required: false
+    description: |
+      By default the uploaded asset name will be same as the file name.
+      Use this to override the asset name. If asset_name contains the
+      string "$tag", it will get replaced by the release tag.
+      Unused if file_glob is set to true.
+  overwrite:
+    required: false
+    description: |
+      By default if an asset already exists with the same name, this action will fail.
+      Use this to overwrite the asset instead.
+    default: "false"
   repo_name:
-    description: 'Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted. If the repository is other than the current, it is required to create a personal access token with `repo`, `user`, `admin:repo_hook` scopes to the foreign repository and add it as a secret. Defaults to the current repository'
+    required: false
+    description: |
+      If the release exists in a different repository then specify its name.
+      It is required to create a personal access token with `repo`, `user`,
+      and `admin:repo_hook` scopes to the external repository and give that
+      as the repo_token.
 outputs:
   browser_download_url:
-    description: 'The publicly available URL of the asset.'
+    description: "The publicly available URL of the asset."
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"
