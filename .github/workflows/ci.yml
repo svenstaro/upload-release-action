@@ -9,63 +9,128 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v2
-    - run: |
-        npm install
-        npm run all
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+          npm run all
 
-  test: # make sure the action works on a clean machine without building
-    name: E2E test
+  # make sure the action works on a clean machine without building
+  test_1:
+    name: E2E test on draft release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v2
-    - name: Make test pre-release
-      uses: ./
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: README.md
-        asset_name: TEST.md
-        tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
-        overwrite: true
-        prerelease: true
-        body: "rofl lol test"
-    - name: Check that the uploaded asset is readable
-      uses: actions/github-script@v2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const fs = require('fs')
-          const child_process = require('child_process');
-          const assert = require('assert').strict;
+      - id: get_tag
+        run: echo "::set-output name=new_tag::ci-test-1-${{ matrix.os }}-${{ github.run_id }}"
+      - uses: actions/checkout@v2
+      - id: create_release
+        name: create temporary release for testing
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_tag.outputs.new_tag }}
+          release_name: Release ${{ steps.get_tag.outputs.new_tag }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: true
+          prerelease: false
+      - name: Make test pre-release
+        uses: ./
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.get_tag.outputs.new_tag }}
+          file: README.md
+          asset_name: TEST.md
+          overwrite: true
+      - name: Check that the uploaded asset is readable
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const assert = require('assert').strict;
+            const release = await github.repos.getRelease({
+              ...context.repo,
+              release_id: "${{ steps.create_release.outputs.id }}",
+            })
+            assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
+            // For a draft release, the `browser_download_url` cannot be used
+            // since the release hasn't been published yet.
+      - name: Clean up
+        if: ${{ always() }}
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.repos.deleteRelease({
+              ...context.repo,
+              release_id: ${{ steps.create_release.outputs.id }},
+            })
 
-          const expected = fs.readFileSync("README.md")
-          const release = await github.repos.getReleaseByTag({
-            ...context.repo,
-            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
-          })
-          assert.deepStrictEqual(release.data.prerelease, true)
-          assert.deepStrictEqual(release.data.body, "rofl lol test")
-          assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
-          const actual = child_process.execSync(`curl -Ls ${release.data.assets[0].browser_download_url}`)
-          assert.deepStrictEqual(expected, actual)
-    - name: Clean up
-      if: ${{ always() }}
-      uses: actions/github-script@v2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const release = await github.repos.getReleaseByTag({
-            ...context.repo,
-            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
-          })
-          await github.repos.deleteRelease({
-            ...context.repo,
-            release_id: release.data.id,
-          })
-          await github.git.deleteRef({
-            ...context.repo,
-            ref: "tags/ci-test-${{ matrix.os }}-${{ github.run_id }}",
-          })
+  test_2:
+    name: E2E test on published release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - id: get_tag
+        run: echo "::set-output name=new_tag::ci-test-2-${{ matrix.os }}-${{ github.run_id }}"
+      - uses: actions/checkout@v2
+      - id: create_release
+        name: create temporary release for testing
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_tag.outputs.new_tag }}
+          release_name: Release ${{ steps.get_tag.outputs.new_tag }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
+      - name: Make test pre-release
+        uses: ./
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.get_tag.outputs.new_tag }}
+          file: README.md
+          asset_name: TEST.md
+          overwrite: true
+      - name: Check that the uploaded asset is readable
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs')
+            const child_process = require('child_process');
+            const assert = require('assert').strict;
+
+            const expected = fs.readFileSync("README.md")
+            const release = await github.repos.getReleaseByTag({
+              ...context.repo,
+              tag: "${{ steps.get_tag.outputs.new_tag }}",
+            })
+            assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
+            const actual = child_process.execSync(`curl -Ls ${release.data.assets[0].browser_download_url}`)
+            assert.deepStrictEqual(expected, actual)
+      - name: Clean up
+        if: ${{ always() }}
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.repos.deleteRelease({
+              ...context.repo,
+              release_id: ${{ steps.create_release.outputs.id }},
+            })
+            await github.git.deleteRef({
+              ...context.repo,
+              ref: "tags/${{ steps.get_tag.outputs.new_tag }}",
+            })
