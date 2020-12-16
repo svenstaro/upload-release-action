@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.2.1] - 2020-12-16
+- Added support for the GitHub pagination API for repositories with many releases [#36](https://github.com/svenstaro/upload-release-action/pull/36) (thanks @djpohly)
+
 ## [2.2.0] - 2020-10-07
 - Add support for ceating a new release in a foreign repository [#25](https://github.com/svenstaro/upload-release-action/pull/25) (thanks @kittaakos)
 - Upgrade all deps
