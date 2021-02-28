@@ -49,6 +49,7 @@ async function upload_to_release(
   asset_name: string,
   tag: string,
   overwrite: boolean,
+  duplicated_error: boolean,
   octokit: Octokit
 ): Promise<undefined | string> {
   const stat = fs.statSync(file)
@@ -78,7 +79,12 @@ async function upload_to_release(
         asset_id: duplicate_asset.id
       })
     } else {
-      core.setFailed(`An asset called ${asset_name} already exists.`)
+      if (duplicated_error) {
+        core.setFailed(`An asset called ${asset_name} already exists.`)
+        return duplicate_asset.browser_download_url
+      }
+
+      core.warn(`An asset called ${asset_name} already exists.`)
       return duplicate_asset.browser_download_url
     }
   } else {
@@ -134,6 +140,7 @@ async function run(): Promise<void> {
 
     const file_glob = core.getInput('file_glob') == 'true' ? true : false
     const overwrite = core.getInput('overwrite') == 'true' ? true : false
+    const duplicated_error = core.getInput('duplicated_error') == 'true' ? true : false
     const prerelease = core.getInput('prerelease') == 'true' ? true : false
     const release_name = core.getInput('release_name')
     const body = core.getInput('body')
@@ -158,6 +165,7 @@ async function run(): Promise<void> {
             asset_name,
             tag,
             overwrite,
+            duplicated_error,
             octokit
           )
           core.setOutput('browser_download_url', asset_download_url)
