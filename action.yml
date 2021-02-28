@@ -17,7 +17,10 @@ inputs:
   asset_name:
     description: 'Name of the asset. When not provided will use the file name. Unused if file_glob is set to "true".'
   overwrite:
-    description: 'Overwrite the release in case it already exists.'
+    description: 'If an asset with the same name already exists, overwrite it.'
+  duplicated_error:
+    description: 'If an asset with the same name already exists, throw error.'
+    default: "true"
   file_glob:
     description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
   prerelease:
