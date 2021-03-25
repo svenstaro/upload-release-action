@@ -16,6 +16,7 @@ async function get_release_by_tag(
   prerelease: boolean,
   release_name: string,
   body: string,
+  target_commit: string,
   octokit: Octokit
 ): Promise<ReleaseByTagResp | CreateReleaseResp> {
   try {
@@ -35,7 +36,8 @@ async function get_release_by_tag(
         tag_name: tag,
         prerelease: prerelease,
         name: release_name,
-        body: body
+        body: body,
+        target_commitish: target_commit
       })
     } else {
       throw error
@@ -137,6 +139,7 @@ async function run(): Promise<void> {
     const prerelease = core.getInput('prerelease') == 'true' ? true : false
     const release_name = core.getInput('release_name')
     const body = core.getInput('body')
+    const target_commit = core.getInput('target_commit')
 
     const octokit: Octokit = github.getOctokit(token)
     const release = await get_release_by_tag(
@@ -144,6 +147,7 @@ async function run(): Promise<void> {
       prerelease,
       release_name,
       body,
+      target_commit,
       octokit
     )
 
