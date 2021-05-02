@@ -161,6 +161,52 @@ jobs:
         body: "This is my release text"
 ```
 
+**Example for feeding a file from repo to the `body` tag:**
+
+This example covers following points:
+* Reading a file present on the repo. For example, `release.md` which is placed in root directory of the repo.
+* Modify & push the `release.md` file before triggering this action (create tag for this example) to dynamically change the body of the release.
+
+```yaml
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+
+  build:
+    name: Publish binaries
+    runs-on: ubuntu-latest
+         
+    steps:
+      - uses: actions/checkout@v2
+
+      # This step reads a file from repo and use it for body of the release
+      # This works on any self-hosted runner OS
+      - name: Read release.md and use it as a body of new release
+        id: read_release
+        shell: bash
+        run: |
+          r=$(cat path/to/release.md)                       # <--- Read release.md (Provide correct path as per your repo)
+          r="${r//'%'/'%25'}"                               # Multiline escape sequences for %
+          r="${r//$'\n'/'%0A'}"                             # Multiline escape sequences for '\n'
+          r="${r//$'\r'/'%0D'}"                             # Multiline escape sequences for '\r'
+          echo "::set-output name=RELEASE_BODY::$r"         # <--- Set environment variable
+
+      - name: Upload Binaries to Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          body: |
+            ${{ steps.read_release.outputs.RELEASE_BODY }}  # <--- Use environment variables that was created earlier
+
+```
+
+
 ## Releasing
 
 To release this Action:
