@@ -177,10 +177,9 @@ on:
 
 jobs:
 
-  # Job for builing packages
-  Build:
-    name: Build Packages
-    runs-on: ${{ matrix.os }}
+  build:
+    name: Publish binaries
+    runs-on: ubuntu-latest
          
     steps:
       - uses: actions/checkout@v2
