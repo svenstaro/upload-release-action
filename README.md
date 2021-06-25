@@ -19,6 +19,7 @@ Optional Arguments
 - `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
 - `prerelease`: Mark the release as a pre-release (Default: `false`).
 - `release_name`: Explicitly set a release name. (Defaults: implicitly same as `tag` via GitHub API).
+- `target_commit`: Sets the commit hash or branch for the tag to be based on (Default: the default branch, usually `master`).
 - `body`: Content of the release text (Default: `""`).
 - `repo_name`: Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted. If the repository is other than the current, it is required to create a personal access token with `repo`, `user`, `admin:repo_hook` scopes to the foreign repository and add it as a secret. (Default: current repository).
 

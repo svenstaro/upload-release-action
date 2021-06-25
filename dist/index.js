@@ -2263,7 +2263,7 @@ const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const path = __importStar(__webpack_require__(622));
 const glob = __importStar(__webpack_require__(402));
-function get_release_by_tag(tag, prerelease, release_name, body, octokit) {
+function get_release_by_tag(tag, prerelease, release_name, body, target_commit, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.debug(`Getting release by tag ${tag}.`);
@@ -2273,7 +2273,7 @@ function get_release_by_tag(tag, prerelease, release_name, body, octokit) {
             // If this returns 404, we need to create the release first.
             if (error.status === 404) {
                 core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
-                return yield octokit.repos.createRelease(Object.assign(Object.assign({}, repo()), { tag_name: tag, prerelease: prerelease, name: release_name, body: body }));
+                return yield octokit.repos.createRelease(Object.assign(Object.assign({}, repo()), { tag_name: tag, prerelease: prerelease, name: release_name, body: body, target_commitish: target_commit }));
             }
             else {
                 throw error;
@@ -2353,8 +2353,9 @@ function run() {
             const prerelease = core.getInput('prerelease') == 'true' ? true : false;
             const release_name = core.getInput('release_name');
             const body = core.getInput('body');
+            const target_commit = core.getInput('target_commit');
             const octokit = github.getOctokit(token);
-            const release = yield get_release_by_tag(tag, prerelease, release_name, body, octokit);
+            const release = yield get_release_by_tag(tag, prerelease, release_name, body, target_commit, octokit);
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {
