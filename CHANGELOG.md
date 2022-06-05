@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.3.0] - 2022-06-05
+- Now defaults `repo_token` to `${{ github.token }}` and `tag` to `${{ github.ref }}` [#69](https://github.com/svenstaro/upload-release-action/pull/69) (thanks @leighmcculloch)
+
 ## [2.2.1] - 2020-12-16
 - Added support for the GitHub pagination API for repositories with many releases [#36](https://github.com/svenstaro/upload-release-action/pull/36) (thanks @djpohly)
 
