@@ -5,6 +5,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import * as path from 'path'
 import * as glob from 'glob'
+import { retry } from '@lifeomic/attempt'
 
 type RepoAssetsResp = Endpoints['GET /repos/:owner/:repo/releases/:release_id/assets']['response']['data']
 type ReleaseByTagResp = Endpoints['GET /repos/:owner/:repo/releases/tags/:tag']['response']
@@ -88,17 +89,21 @@ async function upload_to_release(
   }
 
   core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`)
-  const uploaded_asset: UploadAssetResp = await octokit.repos.uploadReleaseAsset(
-    {
-      url: release.data.upload_url,
-      name: asset_name,
-      data: file_bytes,
-      headers: {
-        'content-type': 'binary/octet-stream',
-        'content-length': file_size
+  const uploaded_asset: UploadAssetResp = await retry(async () => {
+    return octokit.repos.uploadReleaseAsset(
+      {
+        url: release.data.upload_url,
+        name: asset_name,
+        data: file_bytes,
+        headers: {
+          'content-type': 'binary/octet-stream',
+          'content-length': file_size
+        }
       }
-    }
-  )
+    )
+  }, {
+    maxAttempts: 3
+  })
   return uploaded_asset.data.browser_download_url
 }
 
