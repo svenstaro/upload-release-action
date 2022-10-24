@@ -34,5 +34,5 @@ outputs:
   browser_download_url:
     description: 'The publicly available URL of the asset.'
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
