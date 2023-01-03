@@ -24,7 +24,7 @@ async function get_release_by_tag(
       ...repo(),
       tag: tag
     })
-  } catch (error) {
+  } catch (error: any) {
     // If this returns 404, we need to create the release first.
     if (error.status === 404) {
       core.debug(
@@ -180,7 +180,7 @@ async function run(): Promise<void> {
       )
       core.setOutput('browser_download_url', asset_download_url)
     }
-  } catch (error) {
+  } catch (error: any) {
     core.setFailed(error.message)
   }
 }
