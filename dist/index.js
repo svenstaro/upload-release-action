@@ -110,13 +110,13 @@ function repo() {
     if (!owner) {
         throw new Error(`Could not extract 'owner' from 'repo_name': ${repo_name}.`);
     }
-    const repo = repo_name.substr(repo_name.indexOf('/') + 1);
-    if (!repo) {
+    const repo_ = repo_name.substr(repo_name.indexOf('/') + 1);
+    if (!repo_) {
         throw new Error(`Could not extract 'repo' from 'repo_name': ${repo_name}.`);
     }
     return {
         owner,
-        repo
+        repo: repo_
     };
 }
 function run() {
@@ -139,9 +139,9 @@ function run() {
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {
-                    for (const file of files) {
-                        const asset_name = path.basename(file);
-                        const asset_download_url = yield upload_to_release(release, file, asset_name, tag, overwrite, octokit);
+                    for (const file_ of files) {
+                        const asset_name = path.basename(file_);
+                        const asset_download_url = yield upload_to_release(release, file_, asset_name, tag, overwrite, octokit);
                         core.setOutput('browser_download_url', asset_download_url);
                     }
                 }

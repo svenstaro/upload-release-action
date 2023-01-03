@@ -115,13 +115,13 @@ function repo(): {owner: string; repo: string} {
   if (!owner) {
     throw new Error(`Could not extract 'owner' from 'repo_name': ${repo_name}.`)
   }
-  const repo = repo_name.substr(repo_name.indexOf('/') + 1)
-  if (!repo) {
+  const repo_ = repo_name.substr(repo_name.indexOf('/') + 1)
+  if (!repo_) {
     throw new Error(`Could not extract 'repo' from 'repo_name': ${repo_name}.`)
   }
   return {
     owner,
-    repo
+    repo: repo_
   }
 }
 
@@ -153,11 +153,11 @@ async function run(): Promise<void> {
     if (file_glob) {
       const files = glob.sync(file)
       if (files.length > 0) {
-        for (const file of files) {
-          const asset_name = path.basename(file)
+        for (const file_ of files) {
+          const asset_name = path.basename(file_)
           const asset_download_url = await upload_to_release(
             release,
-            file,
+            file_,
             asset_name,
             tag,
             overwrite,
