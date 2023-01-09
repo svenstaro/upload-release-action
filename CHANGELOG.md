@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.4.0] - 2023-01-09
+- Update to node 16
+- Bump most dependencies
+
 ## [2.3.0] - 2022-06-05
 - Now defaults `repo_token` to `${{ github.token }}` and `tag` to `${{ github.ref }}` [#69](https://github.com/svenstaro/upload-release-action/pull/69) (thanks @leighmcculloch)
 
