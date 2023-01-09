@@ -1,4 +1,4 @@
-# Upload files to a GitHub release [![GitHub Actions Workflow](https://github.com/svenstaro/upload-release-action/workflows/PR%20Checks/badge.svg)](https://github.com/svenstaro/upload-release-action/actions)
+# Upload files to a GitHub release [![GitHub Actions Workflow](https://github.com/svenstaro/upload-release-action/actions/workflows/ci.yml/badge.svg)](https://github.com/svenstaro/upload-release-action/actions)
 
 This action allows you to select which files to upload to the just-tagged release.
 It runs on all operating systems types offered by GitHub.
@@ -89,7 +89,7 @@ jobs:
             asset_name: mything-macos-amd64
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build
       run: cargo build --release --locked
     - name: Upload binaries to release
@@ -115,7 +115,7 @@ jobs:
     name: Publish binaries
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
@@ -144,7 +144,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
@@ -182,7 +182,7 @@ jobs:
     runs-on: ubuntu-latest
          
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # This step reads a file from repo and use it for body of the release
       # This works on any self-hosted runner OS
