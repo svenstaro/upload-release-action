@@ -31,7 +31,7 @@ jobs:
         tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
         overwrite: true
         prerelease: true
-        body: "rofl lol test"
+        body: "rofl lol test%0Aianal fubar"
     - name: Check that the uploaded asset is readable
       uses: actions/github-script@v2
       with:
