@@ -47,7 +47,7 @@ jobs:
             tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
           })
           assert.deepStrictEqual(release.data.prerelease, true)
-          assert.deepStrictEqual(release.data.body, "rofl lol test")
+          assert.deepStrictEqual(release.data.body, "rofl lol test\nianal fubar")
           assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
           const actual = child_process.execSync(`curl -Ls ${release.data.assets[0].browser_download_url}`)
           assert.deepStrictEqual(expected, actual)
