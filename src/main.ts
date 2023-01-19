@@ -6,14 +6,19 @@ import * as github from '@actions/github'
 import * as path from 'path'
 import * as glob from 'glob'
 
-type RepoAssetsResp =
-  Endpoints['GET /repos/:owner/:repo/releases/:release_id/assets']['response']['data']
-type ReleaseByTagResp =
-  Endpoints['GET /repos/:owner/:repo/releases/tags/:tag']['response']
-type CreateReleaseResp =
-  Endpoints['POST /repos/:owner/:repo/releases']['response']
-type UploadAssetResp =
-  Endpoints['POST /repos/:owner/:repo/releases/:release_id/assets{?name,label}']['response']
+const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}' as const
+const createRelease = 'POST /repos/{owner}/{repo}/releases' as const
+const repoAssets =
+  'GET /repos/{owner}/{repo}/releases/{release_id}/assets' as const
+const uploadAssets =
+  'POST {origin}/repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}' as const
+const deleteAssets =
+  'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}' as const
+
+type ReleaseByTagResp = Endpoints[typeof releaseByTag]['response']
+type CreateReleaseResp = Endpoints[typeof createRelease]['response']
+type RepoAssetsResp = Endpoints[typeof repoAssets]['response']['data']
+type UploadAssetResp = Endpoints[typeof uploadAssets]['response']
 
 async function get_release_by_tag(
   tag: string,
@@ -24,7 +29,7 @@ async function get_release_by_tag(
 ): Promise<ReleaseByTagResp | CreateReleaseResp> {
   try {
     core.debug(`Getting release by tag ${tag}.`)
-    return await octokit.repos.getReleaseByTag({
+    return await octokit.request(releaseByTag, {
       ...repo(),
       tag: tag
     })
@@ -34,7 +39,7 @@ async function get_release_by_tag(
       core.debug(
         `Release for tag ${tag} doesn't exist yet so we'll create it now.`
       )
-      return await octokit.repos.createRelease({
+      return await octokit.request(createRelease, {
         ...repo(),
         tag_name: tag,
         prerelease: prerelease,
@@ -53,7 +58,7 @@ async function upload_to_release(
   asset_name: string,
   tag: string,
   overwrite: boolean,
-  octokit: Octokit
+  octokit: ReturnType<(typeof github)['getOctokit']>
 ): Promise<undefined | string> {
   const stat = fs.statSync(file)
   if (!stat.isFile()) {
@@ -61,23 +66,20 @@ async function upload_to_release(
     return
   }
   const file_size = stat.size
-  const file_bytes = fs.readFileSync(file)
+  const file_bytes = fs.readFileSync(file).toString('binary')
 
   // Check for duplicates.
-  const assets: RepoAssetsResp = await octokit.paginate(
-    octokit.repos.listReleaseAssets,
-    {
-      ...repo(),
-      release_id: release.data.id
-    }
-  )
+  const assets: RepoAssetsResp = await octokit.paginate(repoAssets, {
+    ...repo(),
+    release_id: release.data.id
+  })
   const duplicate_asset = assets.find(a => a.name === asset_name)
   if (duplicate_asset !== undefined) {
     if (overwrite) {
       core.debug(
         `An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`
       )
-      await octokit.repos.deleteReleaseAsset({
+      await octokit.request(deleteAssets, {
         ...repo(),
         asset_id: duplicate_asset.id
       })
@@ -92,16 +94,17 @@ async function upload_to_release(
   }
 
   core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`)
-  const uploaded_asset: UploadAssetResp =
-    await octokit.repos.uploadReleaseAsset({
-      url: release.data.upload_url,
-      name: asset_name,
-      data: file_bytes,
-      headers: {
-        'content-type': 'binary/octet-stream',
-        'content-length': file_size
-      }
-    })
+  const uploaded_asset: UploadAssetResp = await octokit.request(uploadAssets, {
+    ...repo(),
+    release_id: release.data.id,
+    url: release.data.upload_url,
+    name: asset_name,
+    data: file_bytes,
+    headers: {
+      'content-type': 'binary/octet-stream',
+      'content-length': file_size
+    }
+  })
   return uploaded_asset.data.browser_download_url
 }
 
@@ -111,11 +114,11 @@ function repo(): {owner: string; repo: string} {
   if (!repo_name) {
     return github.context.repo
   }
-  const owner = repo_name.substr(0, repo_name.indexOf('/'))
+  const owner = repo_name.substring(0, repo_name.indexOf('/'))
   if (!owner) {
     throw new Error(`Could not extract 'owner' from 'repo_name': ${repo_name}.`)
   }
-  const repo_ = repo_name.substr(repo_name.indexOf('/') + 1)
+  const repo_ = repo_name.substring(repo_name.indexOf('/') + 1)
   if (!repo_) {
     throw new Error(`Could not extract 'repo' from 'repo_name': ${repo_name}.`)
   }
@@ -141,7 +144,7 @@ async function run(): Promise<void> {
     const release_name = core.getInput('release_name')
     const body = core.getInput('body')
 
-    const octokit: Octokit = github.getOctokit(token)
+    const octokit = github.getOctokit(token)
     const release = await get_release_by_tag(
       tag,
       prerelease,
