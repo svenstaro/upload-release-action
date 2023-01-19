@@ -9,7 +9,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: |
         npm install
         npm run all
@@ -21,7 +21,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Make test pre-release
       uses: ./
       with:
@@ -31,7 +31,7 @@ jobs:
         tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
         overwrite: true
         prerelease: true
-        body: "rofl lol test"
+        body: "rofl lol test%0Aianal fubar"
     - name: Check that the uploaded asset is readable
       uses: actions/github-script@v2
       with:
@@ -47,7 +47,7 @@ jobs:
             tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
           })
           assert.deepStrictEqual(release.data.prerelease, true)
-          assert.deepStrictEqual(release.data.body, "rofl lol test")
+          assert.deepStrictEqual(release.data.body, "rofl lol test\nianal fubar")
           assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
           const actual = child_process.execSync(`curl -Ls ${release.data.assets[0].browser_download_url}`)
           assert.deepStrictEqual(expected, actual)
