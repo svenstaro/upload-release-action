@@ -142,10 +142,11 @@ async function run(): Promise<void> {
     const overwrite = core.getInput('overwrite') == 'true' ? true : false
     const prerelease = core.getInput('prerelease') == 'true' ? true : false
     const release_name = core.getInput('release_name')
-    const body = core.getInput('body')
-          .replace(/%25/g, '%')
-          .replace(/%0A/ig, '\n')
-          .replace(/%0D/ig, '\r')
+    const body = core
+      .getInput('body')
+      .replace(/%25/g, '%')
+      .replace(/%0A/gi, '\n')
+      .replace(/%0D/gi, '\r')
 
     const octokit = github.getOctokit(token)
     const release = await get_release_by_tag(

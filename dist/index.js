@@ -133,7 +133,10 @@ function run() {
             const overwrite = core.getInput('overwrite') == 'true' ? true : false;
             const prerelease = core.getInput('prerelease') == 'true' ? true : false;
             const release_name = core.getInput('release_name');
-            const body = core.getInput('body');
+            const body = core.getInput('body')
+                .replace(/%25/g, '%')
+                .replace(/%0A/ig, '\n')
+                .replace(/%0D/ig, '\r');
             const octokit = github.getOctokit(token);
             const release = yield get_release_by_tag(tag, prerelease, release_name, body, octokit);
             if (file_glob) {
