@@ -144,9 +144,9 @@ async function run(): Promise<void> {
     const release_name = core.getInput('release_name')
     const body = core
       .getInput('body')
-      .replace(/%25/g, '%')
       .replace(/%0A/gi, '\n')
       .replace(/%0D/gi, '\r')
+      .replace(/%25/g, '%')
 
     const octokit = github.getOctokit(token)
     const release = await get_release_by_tag(
