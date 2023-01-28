@@ -1,4 +1,3 @@
-import * as fs from 'fs'
 import {Octokit} from '@octokit/core'
 import {Endpoints} from '@octokit/types'
 import * as core from '@actions/core'
@@ -60,14 +59,6 @@ async function upload_to_release(
   overwrite: boolean,
   octokit: ReturnType<(typeof github)['getOctokit']>
 ): Promise<undefined | string> {
-  const stat = fs.statSync(file)
-  if (!stat.isFile()) {
-    core.debug(`Skipping ${file}, since its not a file`)
-    return
-  }
-  const file_size = stat.size
-  const file_bytes = fs.readFileSync(file).toString('binary')
-
   // Check for duplicates.
   const assets: RepoAssetsResp = await octokit.paginate(repoAssets, {
     ...repo(),
@@ -97,13 +88,8 @@ async function upload_to_release(
   const uploaded_asset: UploadAssetResp = await octokit.request(uploadAssets, {
     ...repo(),
     release_id: release.data.id,
-    url: release.data.upload_url,
     name: asset_name,
-    data: file_bytes,
-    headers: {
-      'content-type': 'binary/octet-stream',
-      'content-length': file_size
-    }
+    data: '@' + file
   })
   return uploaded_asset.data.browser_download_url
 }
