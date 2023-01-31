@@ -66,7 +66,7 @@ async function upload_to_release(
     return
   }
   const file_size = stat.size
-  const file_bytes = fs.readFileSync(file).toString('binary')
+  const file_bytes: any = fs.createReadStream(file)
 
   // Check for duplicates.
   const assets: RepoAssetsResp = await octokit.paginate(repoAssets, {

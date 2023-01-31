@@ -75,7 +75,7 @@ function upload_to_release(release, file, asset_name, tag, overwrite, octokit) {
             return;
         }
         const file_size = stat.size;
-        const file_bytes = fs.readFileSync(file).toString('binary');
+        const file_bytes = fs.createReadStream(file);
         // Check for duplicates.
         const assets = yield octokit.paginate(repoAssets, Object.assign(Object.assign({}, repo()), { release_id: release.data.id }));
         const duplicate_asset = assets.find(a => a.name === asset_name);
@@ -9572,7 +9572,9 @@ function fetch(url, opts) {
 				return;
 			}
 
-			destroyStream(response.body, err);
+			if (response && response.body) {
+				destroyStream(response.body, err);
+			}
 		});
 
 		/* c8 ignore next 18 */
