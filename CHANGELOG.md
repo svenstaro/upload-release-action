@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.4.1] - 2023-02-01
+- Modernize octokit usage
+
 ## [2.4.0] - 2023-01-09
 - Update to node 16
 - Bump most dependencies
