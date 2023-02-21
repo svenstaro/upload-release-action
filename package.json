@@ -29,6 +29,7 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5",
+    "@lifeomic/attempt": "^3.0.3",
     "glob": "^7"
   },
   "devDependencies": {
