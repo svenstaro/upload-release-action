@@ -206,6 +206,15 @@ jobs:
 
 ```
 
+### Permissions
+
+This actions requires writes access to the release. If you are using [granular permissions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions)
+in your workflow, you will need to add the `contents: write` permission to the token:
+
+```yaml
+permissions:
+  contents: write
+```
 
 ## Releasing
 
