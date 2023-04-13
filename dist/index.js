@@ -50,7 +50,7 @@ const createRelease = 'POST /repos/{owner}/{repo}/releases';
 const repoAssets = 'GET /repos/{owner}/{repo}/releases/{release_id}/assets';
 const uploadAssets = 'POST {origin}/repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}';
 const deleteAssets = 'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}';
-function get_release_by_tag(tag, prerelease, release_name, body, octokit) {
+function get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.debug(`Getting release by tag ${tag}.`);
@@ -60,7 +60,7 @@ function get_release_by_tag(tag, prerelease, release_name, body, octokit) {
             // If this returns 404, we need to create the release first.
             if (error.status === 404) {
                 core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
-                return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, prerelease: prerelease, name: release_name, body: body }));
+                return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, prerelease: prerelease, make_latest: make_latest, name: release_name, body: body }));
             }
             else {
                 throw error;
@@ -137,6 +137,7 @@ function run() {
             const file_glob = core.getInput('file_glob') == 'true' ? true : false;
             const overwrite = core.getInput('overwrite') == 'true' ? true : false;
             const prerelease = core.getInput('prerelease') == 'true' ? true : false;
+            const make_latest = core.getInput('make_latest') != 'false' ? true : false;
             const release_name = core.getInput('release_name');
             const body = core
                 .getInput('body')
@@ -144,7 +145,7 @@ function run() {
                 .replace(/%0D/gi, '\r')
                 .replace(/%25/g, '%');
             const octokit = github.getOctokit(token);
-            const release = yield get_release_by_tag(tag, prerelease, release_name, body, octokit);
+            const release = yield get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit);
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {

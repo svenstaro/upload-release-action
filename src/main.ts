@@ -24,6 +24,7 @@ type UploadAssetResp = Endpoints[typeof uploadAssets]['response']
 async function get_release_by_tag(
   tag: string,
   prerelease: boolean,
+  make_latest: boolean,
   release_name: string,
   body: string,
   octokit: Octokit
@@ -44,6 +45,7 @@ async function get_release_by_tag(
         ...repo(),
         tag_name: tag,
         prerelease: prerelease,
+        make_latest: make_latest,
         name: release_name,
         body: body
       })
@@ -149,6 +151,7 @@ async function run(): Promise<void> {
     const file_glob = core.getInput('file_glob') == 'true' ? true : false
     const overwrite = core.getInput('overwrite') == 'true' ? true : false
     const prerelease = core.getInput('prerelease') == 'true' ? true : false
+    const make_latest = core.getInput('make_latest') != 'false' ? true : false
     const release_name = core.getInput('release_name')
     const body = core
       .getInput('body')
@@ -160,6 +163,7 @@ async function run(): Promise<void> {
     const release = await get_release_by_tag(
       tag,
       prerelease,
+      make_latest,
       release_name,
       body,
       octokit

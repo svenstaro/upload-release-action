@@ -24,6 +24,8 @@ inputs:
     description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
   prerelease:
     description: 'Mark the release as a pre-release. Defaults to "false".'
+  make_latest:
+    description: 'Mark the release the latest release for the repository. Defaults to "true".'
   release_name:
     description: 'Explicitly set a release name. Defaults to empty which will cause the release to take the tag as name on GitHub.'
   body:
