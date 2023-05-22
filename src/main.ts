@@ -45,7 +45,7 @@ async function get_release_by_tag(
         ...repo(),
         tag_name: tag,
         prerelease: prerelease,
-        make_latest: make_latest,
+        make_latest: make_latest ? 'true' : 'false',
         name: release_name,
         body: body
       })
@@ -73,7 +73,6 @@ async function upload_to_release(
     core.debug(`Skipping ${file}, since its size is 0`)
     return
   }
-  const file_bytes: any = fs.createReadStream(file)
 
   // Check for duplicates.
   const assets: RepoAssetsResp = await octokit.paginate(repoAssets, {
@@ -108,7 +107,7 @@ async function upload_to_release(
         release_id: release.data.id,
         url: release.data.upload_url,
         name: asset_name,
-        data: file_bytes,
+        data: fs.createReadStream(file) as any,
         headers: {
           'content-type': 'binary/octet-stream',
           'content-length': file_size
