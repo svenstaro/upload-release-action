@@ -31,11 +31,11 @@
     "@actions/github": "^5.1.1",
     "@lifeomic/attempt": "^3.0.3",
     "@octokit/core": "^4.2.1",
-    "glob": "^7"
+    "glob": "^10"
   },
   "devDependencies": {
     "@octokit/types": "^9.2.3",
-    "@types/glob": "^7",
+    "@types/glob": "^8",
     "@types/jest": "^29",
     "@types/node": "^16",
     "@typescript-eslint/parser": "^5",
