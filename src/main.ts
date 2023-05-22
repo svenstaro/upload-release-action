@@ -9,6 +9,8 @@ import {retry} from '@lifeomic/attempt'
 
 const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}' as const
 const createRelease = 'POST /repos/{owner}/{repo}/releases' as const
+const updateRelease =
+  'PATCH /repos/{owner}/{repo}/releases/{release_id}' as const
 const repoAssets =
   'GET /repos/{owner}/{repo}/releases/{release_id}/assets' as const
 const uploadAssets =
@@ -20,6 +22,8 @@ type ReleaseByTagResp = Endpoints[typeof releaseByTag]['response']
 type CreateReleaseResp = Endpoints[typeof createRelease]['response']
 type RepoAssetsResp = Endpoints[typeof repoAssets]['response']['data']
 type UploadAssetResp = Endpoints[typeof uploadAssets]['response']
+type UpdateReleaseResp = Endpoints[typeof updateRelease]['response']
+type UpdateReleaseParams = Endpoints[typeof updateRelease]['parameters']
 
 async function get_release_by_tag(
   tag: string,
@@ -27,11 +31,13 @@ async function get_release_by_tag(
   make_latest: boolean,
   release_name: string,
   body: string,
-  octokit: Octokit
-): Promise<ReleaseByTagResp | CreateReleaseResp> {
+  octokit: Octokit,
+  overwrite: boolean
+): Promise<ReleaseByTagResp | CreateReleaseResp | UpdateReleaseResp> {
+  let release: ReleaseByTagResp
   try {
     core.debug(`Getting release by tag ${tag}.`)
-    return await octokit.request(releaseByTag, {
+    release = await octokit.request(releaseByTag, {
       ...repo(),
       tag: tag
     })
@@ -53,10 +59,35 @@ async function get_release_by_tag(
       throw error
     }
   }
+  let updateObject: Partial<UpdateReleaseParams> | undefined
+  if (overwrite) {
+    if (release.data.name !== release_name) {
+      core.debug(
+        `The ${tag} release already exists with a different name ${release.data.name} so we'll overwrite it.`
+      )
+      updateObject = updateObject || {}
+      updateObject.name = release_name
+    }
+    if (release.data.body !== body) {
+      core.debug(
+        `The ${tag} release already exists with a different body ${release.data.body} so we'll overwrite it.`
+      )
+      updateObject = updateObject || {}
+      updateObject.body = body
+    }
+  }
+  if (updateObject) {
+    return octokit.request(updateRelease, {
+      ...repo(),
+      ...updateObject,
+      release_id: release.data.id
+    })
+  }
+  return release
 }
 
 async function upload_to_release(
-  release: ReleaseByTagResp | CreateReleaseResp,
+  release: ReleaseByTagResp | CreateReleaseResp | UpdateReleaseResp,
   file: string,
   asset_name: string,
   tag: string,
@@ -169,7 +200,8 @@ async function run(): Promise<void> {
       make_latest,
       release_name,
       body,
-      octokit
+      octokit,
+      overwrite
     )
 
     if (file_glob) {
