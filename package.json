@@ -28,11 +28,13 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.10.0",
-    "@actions/github": "^5",
+    "@actions/github": "^5.1.1",
     "@lifeomic/attempt": "^3.0.3",
+    "@octokit/core": "^4.2.1",
     "glob": "^7"
   },
   "devDependencies": {
+    "@octokit/types": "^9.2.3",
     "@types/glob": "^7",
     "@types/jest": "^29",
     "@types/node": "^16",

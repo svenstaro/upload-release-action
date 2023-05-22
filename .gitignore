@@ -2,3 +2,4 @@ node_modules
 run.sh
 __tests__/runner/*
 lib/**/*
+.idea
