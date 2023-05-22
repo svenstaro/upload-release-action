@@ -17,6 +17,7 @@ Optional Arguments
                 This is not used if `file_glob` is set to `true`.
 - `file_glob`: If set to true, the `file` argument can be a glob pattern (`asset_name` is ignored in this case) (Default: `false`)
 - `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
+- `promote`: If a prerelease already exists, promote it to a release (Default: `false`).
 - `prerelease`: Mark the release as a pre-release (Default: `false`).
 - `make_latest`: Mark the release as the latest release for the repository (Default: `true`).
 - `release_name`: Explicitly set a release name. (Defaults: implicitly same as `tag` via GitHub API).
@@ -59,6 +60,7 @@ jobs:
         asset_name: mything
         tag: ${{ github.ref }}
         overwrite: true
+        promote: true
         body: "This is my release text"
 ```
 
@@ -126,6 +128,7 @@ jobs:
         file: target/release/my*
         tag: ${{ github.ref }}
         overwrite: true
+        promote: true
         file_glob: true
 ```
 
@@ -159,6 +162,7 @@ jobs:
         asset_name: mything
         tag: ${{ github.ref }}
         overwrite: true
+        promote: true
         body: "This is my release text"
 ```
 

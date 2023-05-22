@@ -9,10 +9,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v3
-    - run: |
-        npm install
-        npm run all
+      - uses: actions/checkout@v3
+      - run: |
+          npm install
+          npm run all
 
   test: # make sure the action works on a clean machine without building
     name: E2E test
@@ -21,51 +21,82 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v3
-    - name: Make test pre-release
-      uses: ./
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: README.md
-        asset_name: TEST.md
-        tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
-        overwrite: true
-        prerelease: true
-        make_latest: true
-        body: "rofl lol test%0Aianal %25 fubar"
-    - name: Check that the uploaded asset is readable
-      uses: actions/github-script@v2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const fs = require('fs')
-          const assert = require('assert').strict;
-
-          const expected = fs.readFileSync("README.md", "utf-8")
-          const release = await github.repos.getReleaseByTag({
-            ...context.repo,
-            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
-          })
-          assert.deepStrictEqual(release.data.prerelease, true)
-          assert.deepStrictEqual(release.data.body, "rofl lol test\nianal % fubar")
-          assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
-          const actual = await github.request(release.data.assets[0].browser_download_url)
-          assert.deepStrictEqual(expected, actual.data)
-    - name: Clean up
-      if: ${{ always() }}
-      uses: actions/github-script@v2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const release = await github.repos.getReleaseByTag({
-            ...context.repo,
-            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
-          })
-          await github.repos.deleteRelease({
-            ...context.repo,
-            release_id: release.data.id,
-          })
-          await github.git.deleteRef({
-            ...context.repo,
-            ref: "tags/ci-test-${{ matrix.os }}-${{ github.run_id }}",
-          })
+      - uses: actions/checkout@v3
+      - name: Make test pre-release
+        uses: ./
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: README.md
+          asset_name: TEST.md
+          tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
+          overwrite: true
+          prerelease: true
+          make_latest: true
+          body: "rofl lol test%0Aianal %25 fubar"
+      - name: Check that the uploaded asset is readable
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs')
+            const assert = require('assert').strict;
+            
+            const expected = fs.readFileSync("README.md", "utf-8")
+            const release = await github.repos.getReleaseByTag({
+              ...context.repo,
+              tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
+            })
+            assert.deepStrictEqual(release.data.prerelease, true)
+            assert.deepStrictEqual(release.data.body, "rofl lol test\nianal % fubar")
+            assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
+            const actual = await github.request(release.data.assets[0].browser_download_url)
+            assert.deepStrictEqual(expected, actual.data)
+      - name: Make test promote
+        uses: ./
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: README.md
+          asset_name: TEST.md
+          tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
+          overwrite: true
+          promote: true
+          prerelease: false
+          make_latest: true
+          body: "new body"
+      - name: Check that the release is promoted
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          retries: 15
+          script: |
+            const fs = require('fs')
+            const assert = require('assert').strict;
+            
+            const expected = fs.readFileSync("README.md", "utf-8")
+            const release = await github.repos.getReleaseByTag({
+              ...context.repo,
+              tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
+            })
+            assert.deepStrictEqual(release.data.prerelease, false)
+            assert.deepStrictEqual(release.data.body, "new body")
+            assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
+            const actual = await github.request(release.data.assets[0].browser_download_url)
+            assert.deepStrictEqual(expected, actual.data)
+      - name: Clean up
+        if: ${{ always() }}
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const release = await github.repos.getReleaseByTag({
+              ...context.repo,
+              tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
+            })
+            await github.repos.deleteRelease({
+              ...context.repo,
+              release_id: release.data.id,
+            })
+            await github.git.deleteRef({
+              ...context.repo,
+              ref: "tags/ci-test-${{ matrix.os }}-${{ github.run_id }}",
+            })

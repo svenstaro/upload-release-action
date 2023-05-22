@@ -32,7 +32,8 @@ async function get_release_by_tag(
   release_name: string,
   body: string,
   octokit: Octokit,
-  overwrite: boolean
+  overwrite: boolean,
+  promote: boolean
 ): Promise<ReleaseByTagResp | CreateReleaseResp | UpdateReleaseResp> {
   let release: ReleaseByTagResp
   try {
@@ -60,6 +61,11 @@ async function get_release_by_tag(
     }
   }
   let updateObject: Partial<UpdateReleaseParams> | undefined
+  if (promote && release.data.prerelease) {
+    core.debug(`The ${tag} is a prerelease, promoting it to a release.`)
+    updateObject = updateObject || {}
+    updateObject.prerelease = false
+  }
   if (overwrite) {
     if (release.data.name !== release_name) {
       core.debug(
@@ -184,6 +190,7 @@ async function run(): Promise<void> {
 
     const file_glob = core.getInput('file_glob') == 'true' ? true : false
     const overwrite = core.getInput('overwrite') == 'true' ? true : false
+    const promote = core.getInput('promote') == 'true' ? true : false
     const prerelease = core.getInput('prerelease') == 'true' ? true : false
     const make_latest = core.getInput('make_latest') != 'false' ? true : false
     const release_name = core.getInput('release_name')
@@ -201,7 +208,8 @@ async function run(): Promise<void> {
       release_name,
       body,
       octokit,
-      overwrite
+      overwrite,
+      promote
     )
 
     if (file_glob) {
