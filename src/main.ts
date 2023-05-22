@@ -67,6 +67,10 @@ async function upload_to_release(
     return
   }
   const file_size = stat.size
+  if (file_size === 0) {
+    core.debug(`Skipping ${file}, since its size is 0`)
+    return
+  }
   const file_bytes: any = fs.createReadStream(file)
 
   // Check for duplicates.
