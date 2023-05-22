@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Add `make_latest` input parameter. Can be set to `false` to prevent the created release from being marked as the latest release for the repository.
+
 ## [2.5.0] - 2023-02-21
 - Add retry to upload release [#96](https://github.com/svenstaro/upload-release-action/pull/96) (thanks @sonphantrung)
 
