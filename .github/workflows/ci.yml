@@ -40,7 +40,7 @@ jobs:
         script: |
           const fs = require('fs')
           const assert = require('assert').strict;
-          
+
           const expected = fs.readFileSync("README.md", "utf-8")
           const release = await github.repos.getReleaseByTag({
             ...context.repo,
