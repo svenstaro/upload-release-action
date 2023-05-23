@@ -20,6 +20,8 @@ inputs:
     description: 'Name of the asset. When not provided will use the file name. Unused if file_glob is set to "true".'
   overwrite:
     description: 'Overwrite the release in case it already exists.'
+  promote:
+    description: 'Promote a prerelease to release. Defaults to "false".'
   file_glob:
     description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
   prerelease:

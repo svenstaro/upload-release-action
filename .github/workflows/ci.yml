@@ -51,6 +51,37 @@ jobs:
           assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
           const actual = await github.request(release.data.assets[0].browser_download_url)
           assert.deepStrictEqual(expected, actual.data)
+    - name: Make test promote
+      uses: ./
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: README.md
+        asset_name: TEST.md
+        tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
+        overwrite: true
+        promote: true
+        prerelease: false
+        make_latest: true
+        body: "new body"
+    - name: Check that the release is promoted
+      uses: actions/github-script@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        retries: 15
+        script: |
+          const fs = require('fs')
+          const assert = require('assert').strict;
+          
+          const expected = fs.readFileSync("README.md", "utf-8")
+          const release = await github.repos.getReleaseByTag({
+            ...context.repo,
+            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
+          })
+          assert.deepStrictEqual(release.data.prerelease, false)
+          assert.deepStrictEqual(release.data.body, "new body")
+          assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
+          const actual = await github.request(release.data.assets[0].browser_download_url)
+          assert.deepStrictEqual(expected, actual.data)
     - name: Clean up
       if: ${{ always() }}
       uses: actions/github-script@v2
