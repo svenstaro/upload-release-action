@@ -4,6 +4,7 @@
 - Add `make_latest` input parameter. Can be set to `false` to prevent the created release from being marked as the latest release for the repository [#100](https://github.com/svenstaro/upload-release-action/pull/100) (thanks @brandonkelly)
 - Don't try to upload empty files [#102](https://github.com/svenstaro/upload-release-action/pull/102) (thanks @Loyalsoldier)
 - Bump all deps [#105](https://github.com/svenstaro/upload-release-action/pull/105)
+- `overwrite` option also overwrites name and body [#106](https://github.com/svenstaro/upload-release-action/pull/106) (thanks @regevbr)
 
 ## [2.5.0] - 2023-02-21
 - Add retry to upload release [#96](https://github.com/svenstaro/upload-release-action/pull/96) (thanks @sonphantrung)
