@@ -60,7 +60,6 @@ jobs:
         asset_name: mything
         tag: ${{ github.ref }}
         overwrite: true
-        promote: true
         body: "This is my release text"
 ```
 
@@ -128,7 +127,6 @@ jobs:
         file: target/release/my*
         tag: ${{ github.ref }}
         overwrite: true
-        promote: true
         file_glob: true
 ```
 
@@ -162,7 +160,6 @@ jobs:
         asset_name: mything
         tag: ${{ github.ref }}
         overwrite: true
-        promote: true
         body: "This is my release text"
 ```
 
