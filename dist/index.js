@@ -47,14 +47,16 @@ const glob = __importStar(__nccwpck_require__(7106));
 const attempt_1 = __nccwpck_require__(6494);
 const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}';
 const createRelease = 'POST /repos/{owner}/{repo}/releases';
+const updateRelease = 'PATCH /repos/{owner}/{repo}/releases/{release_id}';
 const repoAssets = 'GET /repos/{owner}/{repo}/releases/{release_id}/assets';
 const uploadAssets = 'POST {origin}/repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}';
 const deleteAssets = 'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}';
-function get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit) {
+function get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit, overwrite) {
     return __awaiter(this, void 0, void 0, function* () {
+        let release;
         try {
             core.debug(`Getting release by tag ${tag}.`);
-            return yield octokit.request(releaseByTag, Object.assign(Object.assign({}, repo()), { tag: tag }));
+            release = yield octokit.request(releaseByTag, Object.assign(Object.assign({}, repo()), { tag: tag }));
         }
         catch (error) {
             // If this returns 404, we need to create the release first.
@@ -66,6 +68,23 @@ function get_release_by_tag(tag, prerelease, make_latest, release_name, body, oc
                 throw error;
             }
         }
+        let updateObject;
+        if (overwrite) {
+            if (release.data.name !== release_name) {
+                core.debug(`The ${tag} release already exists with a different name ${release.data.name} so we'll overwrite it.`);
+                updateObject = updateObject || {};
+                updateObject.name = release_name;
+            }
+            if (release.data.body !== body) {
+                core.debug(`The ${tag} release already exists with a different body ${release.data.body} so we'll overwrite it.`);
+                updateObject = updateObject || {};
+                updateObject.body = body;
+            }
+        }
+        if (updateObject) {
+            return octokit.request(updateRelease, Object.assign(Object.assign(Object.assign({}, repo()), updateObject), { release_id: release.data.id }));
+        }
+        return release;
     });
 }
 function upload_to_release(release, file, asset_name, tag, overwrite, octokit) {
@@ -148,7 +167,7 @@ function run() {
                 .replace(/%0D/gi, '\r')
                 .replace(/%25/g, '%');
             const octokit = github.getOctokit(token);
-            const release = yield get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit);
+            const release = yield get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit, overwrite);
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {
