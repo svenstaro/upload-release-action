@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [2.6.0] - 2023-05-23
 - Add `make_latest` input parameter. Can be set to `false` to prevent the created release from being marked as the latest release for the repository [#100](https://github.com/svenstaro/upload-release-action/pull/100) (thanks @brandonkelly)
 - Don't try to upload empty files [#102](https://github.com/svenstaro/upload-release-action/pull/102) (thanks @Loyalsoldier)
 - Bump all deps [#105](https://github.com/svenstaro/upload-release-action/pull/105)
