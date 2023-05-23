@@ -5,6 +5,7 @@
 - Don't try to upload empty files [#102](https://github.com/svenstaro/upload-release-action/pull/102) (thanks @Loyalsoldier)
 - Bump all deps [#105](https://github.com/svenstaro/upload-release-action/pull/105)
 - `overwrite` option also overwrites name and body [#106](https://github.com/svenstaro/upload-release-action/pull/106) (thanks @regevbr)
+- Add `promote` option to allow prereleases to be promoted [#74](https://github.com/svenstaro/upload-release-action/pull/74) (thanks @regevbr)
 
 ## [2.5.0] - 2023-02-21
 - Add retry to upload release [#96](https://github.com/svenstaro/upload-release-action/pull/96) (thanks @sonphantrung)
