@@ -224,6 +224,7 @@ To release this Action:
 
 - Bump version in `package.json`
 - Create `CHANGELOG.md` entry
+- `npm update`
 - `npm run all`
 - `git commit -am <version>`
 - `git tag -sm <version> <version>`
