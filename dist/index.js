@@ -75,12 +75,12 @@ function get_release_by_tag(tag, prerelease, make_latest, release_name, body, oc
             updateObject.prerelease = false;
         }
         if (overwrite) {
-            if (release.data.name !== release_name) {
+            if (release_name && release.data.name !== release_name) {
                 core.debug(`The ${tag} release already exists with a different name ${release.data.name} so we'll overwrite it.`);
                 updateObject = updateObject || {};
                 updateObject.name = release_name;
             }
-            if (release.data.body !== body) {
+            if (body && release.data.body !== body) {
                 core.debug(`The ${tag} release already exists with a different body ${release.data.body} so we'll overwrite it.`);
                 updateObject = updateObject || {};
                 updateObject.body = body;
