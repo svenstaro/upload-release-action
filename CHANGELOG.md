@@ -1,7 +1,7 @@
 # Changelog
 
 ## [2.6.1] - 2023-05-31
-- Do not overwrite body or name if empty [#108](https://github.com/svenstaro/upload-release-action/pull/108) (thanks regevbr)
+- Do not overwrite body or name if empty [#108](https://github.com/svenstaro/upload-release-action/pull/108) (thanks @regevbr)
 
 ## [2.6.0] - 2023-05-23
 - Add `make_latest` input parameter. Can be set to `false` to prevent the created release from being marked as the latest release for the repository [#100](https://github.com/svenstaro/upload-release-action/pull/100) (thanks @brandonkelly)
