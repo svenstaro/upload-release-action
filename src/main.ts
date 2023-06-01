@@ -33,7 +33,8 @@ async function get_release_by_tag(
   body: string,
   octokit: Octokit,
   overwrite: boolean,
-  promote: boolean
+  promote: boolean,
+  target_commit: string
 ): Promise<ReleaseByTagResp | CreateReleaseResp | UpdateReleaseResp> {
   let release: ReleaseByTagResp
   try {
@@ -54,7 +55,8 @@ async function get_release_by_tag(
         prerelease: prerelease,
         make_latest: make_latest ? 'true' : 'false',
         name: release_name,
-        body: body
+        body: body,
+        target_commitish: target_commit
       })
     } else {
       throw error
@@ -194,6 +196,7 @@ async function run(): Promise<void> {
     const prerelease = core.getInput('prerelease') == 'true' ? true : false
     const make_latest = core.getInput('make_latest') != 'false' ? true : false
     const release_name = core.getInput('release_name')
+    const target_commit = core.getInput('target_commit')
     const body = core
       .getInput('body')
       .replace(/%0A/gi, '\n')
@@ -209,7 +212,8 @@ async function run(): Promise<void> {
       body,
       octokit,
       overwrite,
-      promote
+      promote,
+      target_commit
     )
 
     if (file_glob) {
