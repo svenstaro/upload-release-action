@@ -33,7 +33,7 @@ inputs:
   body:
     description: 'Content of the release text. Empty by default.'
   target_commit:
-    description: 'Specifies the commitish value that determines where the Git tag is created from. Can be any branch or commit SHA. Unused if the Git tag already exists. Default: the repository\'s default branch (usually `main`).'
+    description: 'Specifies the commitish value that determines where the Git tag is created from. Can be any branch or commit SHA. Unused if the Git tag already exists. Default: the repository\"s default branch (usually `main`).'
   repo_name:
     description: 'Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted. If the repository is other than the current, it is required to create a personal access token with `repo`, `user`, `admin:repo_hook` scopes to the foreign repository and add it as a secret. Defaults to the current repository'
 outputs:
