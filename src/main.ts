@@ -7,6 +7,7 @@ import * as path from 'path'
 import * as glob from 'glob'
 import {retry} from '@lifeomic/attempt'
 
+const getTag = 'GET /repos/{owner}/{repo}/git/tags/{tag_sha}' as const
 const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}' as const
 const createRelease = 'POST /repos/{owner}/{repo}/releases' as const
 const updateRelease =
@@ -49,6 +50,15 @@ async function get_release_by_tag(
       core.debug(
         `Release for tag ${tag} doesn't exist yet so we'll create it now.`
       )
+      if (target_commit) {
+        try {
+          await octokit.request(getTag, {
+            ...repo(),
+            tag_sha: tag
+          });
+          core.warning(`Ignoring target_commit as the tag ${tag} already exists`)
+        } catch { }
+      }
       return await octokit.request(createRelease, {
         ...repo(),
         tag_name: tag,
