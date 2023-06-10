@@ -7,7 +7,7 @@ import * as path from 'path'
 import * as glob from 'glob'
 import {retry} from '@lifeomic/attempt'
 
-const getTag = 'GET /repos/{owner}/{repo}/git/tags/{tag_sha}' as const
+const getRef = 'GET /repos/{owner}/{repo}/git/ref/{ref}' as const
 const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}' as const
 const createRelease = 'POST /repos/{owner}/{repo}/releases' as const
 const updateRelease =
@@ -52,10 +52,10 @@ async function get_release_by_tag(
       )
       if (target_commit) {
         try {
-          await octokit.request(getTag, {
+          await octokit.request(getRef, {
             ...repo(),
-            tag_sha: tag
-          });
+            ref: `tags/${tag}`
+          })
           core.warning(`Ignoring target_commit as the tag ${tag} already exists`)
         } catch (tagError: any) {
           if (tagError.status !== 404) {
