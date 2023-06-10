@@ -57,7 +57,11 @@ async function get_release_by_tag(
             tag_sha: tag
           });
           core.warning(`Ignoring target_commit as the tag ${tag} already exists`)
-        } catch { }
+        } catch (tagError: any) {
+          if (tagError.status !== 404) {
+            throw tagError
+          }
+        }
       }
       return await octokit.request(createRelease, {
         ...repo(),

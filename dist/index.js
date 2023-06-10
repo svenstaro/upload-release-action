@@ -68,7 +68,11 @@ function get_release_by_tag(tag, prerelease, make_latest, release_name, body, oc
                         yield octokit.request(getTag, Object.assign(Object.assign({}, repo()), { tag_sha: tag }));
                         core.warning(`Ignoring target_commit as the tag ${tag} already exists`);
                     }
-                    catch (_a) { }
+                    catch (tagError) {
+                      if (tagError.status !== 404) {
+                        throw tagError
+                      }
+                    }
                 }
                 return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
             }
