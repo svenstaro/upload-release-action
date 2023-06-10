@@ -45,7 +45,7 @@ const github = __importStar(__nccwpck_require__(5438));
 const path = __importStar(__nccwpck_require__(1017));
 const glob = __importStar(__nccwpck_require__(7106));
 const attempt_1 = __nccwpck_require__(6494);
-const getTag = 'GET /repos/{owner}/{repo}/git/tags/{tag_sha}';
+const getRef = 'GET /repos/{owner}/{repo}/git/ref/{ref}';
 const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}';
 const createRelease = 'POST /repos/{owner}/{repo}/releases';
 const updateRelease = 'PATCH /repos/{owner}/{repo}/releases/{release_id}';
@@ -65,7 +65,7 @@ function get_release_by_tag(tag, prerelease, make_latest, release_name, body, oc
                 core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
                 if (target_commit) {
                     try {
-                        yield octokit.request(getTag, Object.assign(Object.assign({}, repo()), { tag_sha: tag }));
+                        yield octokit.request(getRef, Object.assign(Object.assign({}, repo()), { ref: `tags/${tag}` }));
                         core.warning(`Ignoring target_commit as the tag ${tag} already exists`);
                     }
                     catch (tagError) {
