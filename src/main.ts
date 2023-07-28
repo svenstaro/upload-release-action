@@ -7,6 +7,7 @@ import * as path from 'path'
 import * as glob from 'glob'
 import {retry} from '@lifeomic/attempt'
 
+const getRef = 'GET /repos/{owner}/{repo}/git/ref/{ref}' as const
 const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}' as const
 const createRelease = 'POST /repos/{owner}/{repo}/releases' as const
 const updateRelease =
@@ -33,7 +34,8 @@ async function get_release_by_tag(
   body: string,
   octokit: Octokit,
   overwrite: boolean,
-  promote: boolean
+  promote: boolean,
+  target_commit: string
 ): Promise<ReleaseByTagResp | CreateReleaseResp | UpdateReleaseResp> {
   let release: ReleaseByTagResp
   try {
@@ -48,13 +50,27 @@ async function get_release_by_tag(
       core.debug(
         `Release for tag ${tag} doesn't exist yet so we'll create it now.`
       )
+      if (target_commit) {
+        try {
+          await octokit.request(getRef, {
+            ...repo(),
+            ref: `tags/${tag}`
+          })
+          core.warning(`Ignoring target_commit as the tag ${tag} already exists`)
+        } catch (tagError: any) {
+          if (tagError.status !== 404) {
+            throw tagError
+          }
+        }
+      }
       return await octokit.request(createRelease, {
         ...repo(),
         tag_name: tag,
         prerelease: prerelease,
         make_latest: make_latest ? 'true' : 'false',
         name: release_name,
-        body: body
+        body: body,
+        target_commitish: target_commit
       })
     } else {
       throw error
@@ -194,6 +210,7 @@ async function run(): Promise<void> {
     const prerelease = core.getInput('prerelease') == 'true' ? true : false
     const make_latest = core.getInput('make_latest') != 'false' ? true : false
     const release_name = core.getInput('release_name')
+    const target_commit = core.getInput('target_commit')
     const body = core
       .getInput('body')
       .replace(/%0A/gi, '\n')
@@ -209,7 +226,8 @@ async function run(): Promise<void> {
       body,
       octokit,
       overwrite,
-      promote
+      promote,
+      target_commit
     )
 
     if (file_glob) {

@@ -45,13 +45,14 @@ const github = __importStar(__nccwpck_require__(5438));
 const path = __importStar(__nccwpck_require__(1017));
 const glob = __importStar(__nccwpck_require__(7106));
 const attempt_1 = __nccwpck_require__(6494);
+const getRef = 'GET /repos/{owner}/{repo}/git/ref/{ref}';
 const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}';
 const createRelease = 'POST /repos/{owner}/{repo}/releases';
 const updateRelease = 'PATCH /repos/{owner}/{repo}/releases/{release_id}';
 const repoAssets = 'GET /repos/{owner}/{repo}/releases/{release_id}/assets';
 const uploadAssets = 'POST {origin}/repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}';
 const deleteAssets = 'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}';
-function get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit, overwrite, promote) {
+function get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit) {
     return __awaiter(this, void 0, void 0, function* () {
         let release;
         try {
@@ -62,7 +63,18 @@ function get_release_by_tag(tag, prerelease, make_latest, release_name, body, oc
             // If this returns 404, we need to create the release first.
             if (error.status === 404) {
                 core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
-                return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body }));
+                if (target_commit) {
+                    try {
+                        yield octokit.request(getRef, Object.assign(Object.assign({}, repo()), { ref: `tags/${tag}` }));
+                        core.warning(`Ignoring target_commit as the tag ${tag} already exists`);
+                    }
+                    catch (tagError) {
+                      if (tagError.status !== 404) {
+                        throw tagError
+                      }
+                    }
+                }
+                return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
             }
             else {
                 throw error;
@@ -167,13 +179,14 @@ function run() {
             const prerelease = core.getInput('prerelease') == 'true' ? true : false;
             const make_latest = core.getInput('make_latest') != 'false' ? true : false;
             const release_name = core.getInput('release_name');
+            const target_commit = core.getInput('target_commit');
             const body = core
                 .getInput('body')
                 .replace(/%0A/gi, '\n')
                 .replace(/%0D/gi, '\r')
                 .replace(/%25/g, '%');
             const octokit = github.getOctokit(token);
-            const release = yield get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit, overwrite, promote);
+            const release = yield get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit);
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {
