@@ -56,7 +56,9 @@ async function get_release_by_tag(
             ...repo(),
             ref: `tags/${tag}`
           })
-          core.warning(`Ignoring target_commit as the tag ${tag} already exists`)
+          core.warning(
+            `Ignoring target_commit as the tag ${tag} already exists`
+          )
         } catch (tagError: any) {
           if (tagError.status !== 404) {
             throw tagError
