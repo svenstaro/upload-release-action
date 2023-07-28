@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.7.0] - 2023-07-28
+- Allow setting an explicit target_commitish [#46](https://github.com/svenstaro/upload-release-action/pull/46) (thanks @Spikatrix)
+
 ## [2.6.1] - 2023-05-31
 - Do not overwrite body or name if empty [#108](https://github.com/svenstaro/upload-release-action/pull/108) (thanks @regevbr)
 
