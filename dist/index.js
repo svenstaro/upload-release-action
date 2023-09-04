@@ -52,7 +52,7 @@ const updateRelease = 'PATCH /repos/{owner}/{repo}/releases/{release_id}';
 const repoAssets = 'GET /repos/{owner}/{repo}/releases/{release_id}/assets';
 const uploadAssets = 'POST {origin}/repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}';
 const deleteAssets = 'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}';
-function get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit) {
+function get_release_by_tag(tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit) {
     return __awaiter(this, void 0, void 0, function* () {
         let release;
         try {
@@ -74,7 +74,7 @@ function get_release_by_tag(tag, prerelease, make_latest, release_name, body, oc
                         }
                     }
                 }
-                return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
+                return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
             }
             else {
                 throw error;
@@ -176,6 +176,7 @@ function run() {
             const file_glob = core.getInput('file_glob') == 'true' ? true : false;
             const overwrite = core.getInput('overwrite') == 'true' ? true : false;
             const promote = core.getInput('promote') == 'true' ? true : false;
+            const draft = core.getInput('draft') == 'true' ? true : false;
             const prerelease = core.getInput('prerelease') == 'true' ? true : false;
             const make_latest = core.getInput('make_latest') != 'false' ? true : false;
             const release_name = core.getInput('release_name');
@@ -186,7 +187,7 @@ function run() {
                 .replace(/%0D/gi, '\r')
                 .replace(/%25/g, '%');
             const octokit = github.getOctokit(token);
-            const release = yield get_release_by_tag(tag, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit);
+            const release = yield get_release_by_tag(tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit);
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {
