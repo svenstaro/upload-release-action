@@ -24,6 +24,8 @@ inputs:
     description: 'Promote a prerelease to release. Defaults to "false".'
   file_glob:
     description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
+  draft:
+    description: 'Mark the release as a draft. Defaults to "false".'
   prerelease:
     description: 'Mark the release as a pre-release. Defaults to "false".'
   make_latest:
