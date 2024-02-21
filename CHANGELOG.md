@@ -2,6 +2,7 @@
 
 ## [2.8.0] - 2024-02-21
 - Bump all deps
+- Update to node 20
 
 ## [2.7.0] - 2023-07-28
 - Allow setting an explicit target_commitish [#46](https://github.com/svenstaro/upload-release-action/pull/46) (thanks @Spikatrix)
