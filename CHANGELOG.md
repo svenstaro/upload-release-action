@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.9.0] - 2024-02-22
+- Allow seeting a release as draft [#112](https://github.com/svenstaro/upload-release-action/pull/112) (thanks @ShonP40)
+
 ## [2.8.0] - 2024-02-21
 - Bump all deps
 - Update to node 20
