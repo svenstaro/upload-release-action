@@ -50,6 +50,8 @@ jobs:
           assert.deepStrictEqual(release.data.body, "rofl lol test\nianal % fubar")
           assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
           const actual = await github.request(release.data.assets[0].browser_download_url)
+          console.log(typeof(actual))
+          console.log(typeof(expected))
           assert.deepStrictEqual(expected, actual.data)
     - name: Make test promote
       uses: ./
