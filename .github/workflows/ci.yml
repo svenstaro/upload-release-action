@@ -96,7 +96,7 @@ jobs:
             ...context.repo,
             release_id: release.data.id,
           })
-          await github.git.deleteRef({
+          await github.rest.git.deleteRef({
             ...context.repo,
             ref: "tags/ci-test-${{ matrix.os }}-${{ github.run_id }}",
           })
