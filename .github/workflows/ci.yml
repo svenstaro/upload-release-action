@@ -9,7 +9,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: |
         npm install
         npm run all
@@ -21,7 +21,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Make test pre-release
       uses: ./
       with:
@@ -34,7 +34,7 @@ jobs:
         make_latest: true
         body: "rofl lol test%0Aianal %25 fubar"
     - name: Check that the uploaded asset is readable
-      uses: actions/github-script@v2
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -64,7 +64,7 @@ jobs:
         make_latest: true
         body: "new body"
     - name: Check that the release is promoted
-      uses: actions/github-script@v2
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         retries: 15
@@ -84,7 +84,7 @@ jobs:
           assert.deepStrictEqual(expected, actual.data)
     - name: Clean up
       if: ${{ always() }}
-      uses: actions/github-script@v2
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
