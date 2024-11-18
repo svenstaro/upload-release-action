@@ -7,17 +7,14 @@ import * as path from 'path'
 import * as glob from 'glob'
 import {retry} from '@lifeomic/attempt'
 
-const getRef = 'GET /repos/{owner}/{repo}/git/ref/{ref}' as const
-const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}' as const
-const createRelease = 'POST /repos/{owner}/{repo}/releases' as const
-const updateRelease =
-  'PATCH /repos/{owner}/{repo}/releases/{release_id}' as const
-const repoAssets =
-  'GET /repos/{owner}/{repo}/releases/{release_id}/assets' as const
+const getRef = 'GET /repos/{owner}/{repo}/git/ref/{ref}'
+const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}'
+const createRelease = 'POST /repos/{owner}/{repo}/releases'
+const updateRelease = 'PATCH /repos/{owner}/{repo}/releases/{release_id}'
+const repoAssets = 'GET /repos/{owner}/{repo}/releases/{release_id}/assets'
 const uploadAssets =
-  'POST {origin}/repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}' as const
-const deleteAssets =
-  'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}' as const
+  'POST {origin}/repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}'
+const deleteAssets = 'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}'
 
 type ReleaseByTagResp = Endpoints[typeof releaseByTag]['response']
 type CreateReleaseResp = Endpoints[typeof createRelease]['response']
