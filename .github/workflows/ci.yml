@@ -49,7 +49,8 @@ jobs:
           assert.deepStrictEqual(release.data.prerelease, true)
           assert.deepStrictEqual(release.data.body, "rofl lol test\nianal % fubar")
           assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
-          const actual = await github.request(release.data.assets[0].browser_download_url)
+          const arraybuf = await github.request(release.data.assets[0].browser_download_url)
+          const actual = Buffer.from(arraybuf).toString('utf8')
           console.log(typeof(actual))
           console.log(typeof(expected))
           assert.deepStrictEqual(expected, actual.data)
@@ -82,7 +83,8 @@ jobs:
           assert.deepStrictEqual(release.data.prerelease, false)
           assert.deepStrictEqual(release.data.body, "new body")
           assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
-          const actual = await github.request(release.data.assets[0].browser_download_url)
+          const arraybuf = await github.request(release.data.assets[0].browser_download_url)
+          const actual = Buffer.from(arraybuf).toString('utf8')
           assert.deepStrictEqual(expected, actual.data)
     - name: Clean up
       if: ${{ always() }}
