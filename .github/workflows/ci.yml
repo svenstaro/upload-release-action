@@ -50,10 +50,10 @@ jobs:
           assert.deepStrictEqual(release.data.body, "rofl lol test\nianal % fubar")
           assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
           const arraybuf = await github.request(release.data.assets[0].browser_download_url)
-          const actual = Buffer.from(arraybuf).toString('utf8')
+          const actual = Buffer.from(arraybuf.data).toString('utf8')
           console.log(typeof(actual))
           console.log(typeof(expected))
-          assert.deepStrictEqual(expected, actual.data)
+          assert.deepStrictEqual(expected, actual)
     - name: Make test promote
       uses: ./
       with:
@@ -84,8 +84,8 @@ jobs:
           assert.deepStrictEqual(release.data.body, "new body")
           assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
           const arraybuf = await github.request(release.data.assets[0].browser_download_url)
-          const actual = Buffer.from(arraybuf).toString('utf8')
-          assert.deepStrictEqual(expected, actual.data)
+          const actual = Buffer.from(arraybuf.data).toString('utf8')
+          assert.deepStrictEqual(expected, actual)
     - name: Clean up
       if: ${{ always() }}
       uses: actions/github-script@v7
