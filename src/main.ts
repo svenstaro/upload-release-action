@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import {Octokit} from '@octokit/core'
 import {Endpoints} from '@octokit/types'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
@@ -30,10 +29,11 @@ async function get_release_by_tag(
   make_latest: boolean,
   release_name: string,
   body: string,
-  octokit: Octokit,
+  octokit: ReturnType<typeof github.getOctokit>,
   overwrite: boolean,
   promote: boolean,
-  target_commit: string
+  target_commit: string,
+  generate_release_notes: boolean
 ): Promise<ReleaseByTagResp | CreateReleaseResp | UpdateReleaseResp> {
   let release: ReleaseByTagResp
   try {
@@ -71,7 +71,8 @@ async function get_release_by_tag(
         make_latest: make_latest ? 'true' : 'false',
         name: release_name,
         body: body,
-        target_commitish: target_commit
+        target_commitish: target_commit,
+        generate_release_notes: generate_release_notes
       })
     } else {
       throw error
@@ -213,6 +214,8 @@ async function run(): Promise<void> {
     const make_latest = core.getInput('make_latest') != 'false' ? true : false
     const release_name = core.getInput('release_name')
     const target_commit = core.getInput('target_commit')
+    const generate_release_notes =
+      core.getInput('generate_release_notes') == 'true' ? true : false
     const body = core
       .getInput('body')
       .replace(/%0A/gi, '\n')
@@ -230,7 +233,8 @@ async function run(): Promise<void> {
       octokit,
       overwrite,
       promote,
-      target_commit
+      target_commit,
+      generate_release_notes
     )
 
     if (file_glob) {
