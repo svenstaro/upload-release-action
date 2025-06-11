@@ -30,7 +30,7 @@
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
     "@lifeomic/attempt": "^3.1.0",
-    "@octokit/core": "^6.1.2",
+    "@octokit/core": "^5.2.1",
     "glob": "^11"
   },
   "devDependencies": {
