@@ -38,6 +38,8 @@ async function get_release_by_tag(
   let release: ReleaseByTagResp
   try {
     core.debug(`Getting release by tag ${tag}.`)
+
+    // @ts-ignore
     release = await octokit.request(releaseByTag, {
       ...repo(),
       tag: tag
@@ -63,6 +65,7 @@ async function get_release_by_tag(
           }
         }
       }
+      // @ts-ignore
       return await octokit.request(createRelease, {
         ...repo(),
         tag_name: tag,
@@ -100,6 +103,7 @@ async function get_release_by_tag(
     }
   }
   if (updateObject) {
+    // @ts-ignore
     return octokit.request(updateRelease, {
       ...repo(),
       ...updateObject,
@@ -154,6 +158,8 @@ async function upload_to_release(
   }
 
   core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`)
+
+  // @ts-ignore
   const uploaded_asset: UploadAssetResp = await retry(
     async () => {
       return octokit.request(uploadAssets, {
