@@ -1,19 +1,11 @@
-name: "CI"
-on: [pull_request, push, workflow_dispatch]
+name: "E2E test"
+on: [push, workflow_dispatch]
+
+# End to end tests require content permissions to create releases
+# This essentially gives permissions to make ANY change in the repository, so we should not grant this to PRs
+# This is an open issue for Github, see https://github.com/orgs/community/discussions/68252
 
 jobs:
-  build: # make sure build/ci work properly
-    name: CI on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-    - uses: actions/checkout@v4
-    - run: |
-        npm install
-        npm run all
-
   test: # make sure the action works on a clean machine without building
     name: E2E test
     runs-on: ${{ matrix.os }}
