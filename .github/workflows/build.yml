@@ -3,7 +3,7 @@ on: [pull_request, push, workflow_dispatch]
 
 jobs:
   build: # make sure build/ci work properly
-    name: CI on ${{ matrix.os }}
+    name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
