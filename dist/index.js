@@ -117,7 +117,7 @@ function get_release_by_tag(tag, draft, prerelease, make_latest, release_name, b
         return release;
     });
 }
-function upload_to_release(release, file, asset_name, tag, overwrite, octokit) {
+function upload_to_release(release, file, asset_name, tag, overwrite, octokit, check_duplicates) {
     return __awaiter(this, void 0, void 0, function* () {
         const stat = fs.statSync(file);
         if (!stat.isFile()) {
@@ -129,21 +129,23 @@ function upload_to_release(release, file, asset_name, tag, overwrite, octokit) {
             core.debug(`Skipping ${file}, since its size is 0`);
             return;
         }
-        // Check for duplicates.
-        const assets = yield octokit.paginate(repoAssets, Object.assign(Object.assign({}, repo()), { release_id: release.data.id }));
-        const duplicate_asset = assets.find(a => a.name === asset_name);
-        if (duplicate_asset !== undefined) {
-            if (overwrite) {
-                core.debug(`An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`);
-                yield octokit.request(deleteAssets, Object.assign(Object.assign({}, repo()), { asset_id: duplicate_asset.id }));
+        if (check_duplicates) {
+            // Check for duplicates.
+            const assets = yield octokit.paginate(repoAssets, Object.assign(Object.assign({}, repo()), { release_id: release.data.id }));
+            const duplicate_asset = assets.find(a => a.name === asset_name);
+            if (duplicate_asset !== undefined) {
+                if (overwrite) {
+                    core.debug(`An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`);
+                    yield octokit.request(deleteAssets, Object.assign(Object.assign({}, repo()), { asset_id: duplicate_asset.id }));
+                }
+                else {
+                    core.setFailed(`An asset called ${asset_name} already exists.`);
+                    return duplicate_asset.browser_download_url;
+                }
             }
             else {
-                core.setFailed(`An asset called ${asset_name} already exists.`);
-                return duplicate_asset.browser_download_url;
+                core.debug(`No pre-existing asset called ${asset_name} found in release ${tag}. All good.`);
             }
-        }
-        else {
-            core.debug(`No pre-existing asset called ${asset_name} found in release ${tag}. All good.`);
         }
         core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`);
         // @ts-ignore
@@ -195,6 +197,7 @@ function run() {
             const make_latest = core.getInput('make_latest') != 'false' ? true : false;
             const release_name = core.getInput('release_name');
             const target_commit = core.getInput('target_commit');
+            const check_duplicates = core.getInput('check_duplicates') == 'true' ? true : false;
             const body = core
                 .getInput('body')
                 .replace(/%0A/gi, '\n')
@@ -207,7 +210,7 @@ function run() {
                 if (files.length > 0) {
                     for (const file_ of files) {
                         const asset_name = path.basename(file_);
-                        const asset_download_url = yield upload_to_release(release, file_, asset_name, tag, overwrite, octokit);
+                        const asset_download_url = yield upload_to_release(release, file_, asset_name, tag, overwrite, octokit, check_duplicates);
                         core.setOutput('browser_download_url', asset_download_url);
                     }
                 }
@@ -219,7 +222,7 @@ function run() {
                 const asset_name = core.getInput('asset_name') !== ''
                     ? core.getInput('asset_name').replace(/\$tag/g, tag)
                     : path.basename(file);
-                const asset_download_url = yield upload_to_release(release, file, asset_name, tag, overwrite, octokit);
+                const asset_download_url = yield upload_to_release(release, file, asset_name, tag, overwrite, octokit, check_duplicates);
                 core.setOutput('browser_download_url', asset_download_url);
             }
         }
