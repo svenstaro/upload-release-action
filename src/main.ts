@@ -119,8 +119,8 @@ async function upload_to_release(
   asset_name: string,
   tag: string,
   overwrite: boolean,
-  octokit: ReturnType<(typeof github)['getOctokit']>
-  check_duplicates: boolean,
+  octokit: ReturnType<(typeof github)['getOctokit']>,
+  check_duplicates: boolean
 ): Promise<undefined | string> {
   const stat = fs.statSync(file)
   if (!stat.isFile()) {
@@ -133,32 +133,32 @@ async function upload_to_release(
     return
   }
 
-    if (check_duplicates) {
-      // Check for duplicates.
-      const assets: RepoAssetsResp = await octokit.paginate(repoAssets, {
-        ...repo(),
-        release_id: release.data.id
-      })
-      const duplicate_asset = assets.find(a => a.name === asset_name)
-      if (duplicate_asset !== undefined) {
-        if (overwrite) {
-          core.debug(
-            `An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`
-          )
-          await octokit.request(deleteAssets, {
-            ...repo(),
-            asset_id: duplicate_asset.id
-          })
-        } else {
-          core.setFailed(`An asset called ${asset_name} already exists.`)
-          return duplicate_asset.browser_download_url
-        }
-      } else {
+  if (check_duplicates) {
+    // Check for duplicates.
+    const assets: RepoAssetsResp = await octokit.paginate(repoAssets, {
+      ...repo(),
+      release_id: release.data.id
+    })
+    const duplicate_asset = assets.find(a => a.name === asset_name)
+    if (duplicate_asset !== undefined) {
+      if (overwrite) {
         core.debug(
-          `No pre-existing asset called ${asset_name} found in release ${tag}. All good.`
+          `An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`
         )
+        await octokit.request(deleteAssets, {
+          ...repo(),
+          asset_id: duplicate_asset.id
+        })
+      } else {
+        core.setFailed(`An asset called ${asset_name} already exists.`)
+        return duplicate_asset.browser_download_url
       }
+    } else {
+      core.debug(
+        `No pre-existing asset called ${asset_name} found in release ${tag}. All good.`
+      )
     }
+  }
 
   core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`)
 
@@ -222,7 +222,8 @@ async function run(): Promise<void> {
     const make_latest = core.getInput('make_latest') != 'false' ? true : false
     const release_name = core.getInput('release_name')
     const target_commit = core.getInput('target_commit')
-    const check_duplicates = core.getInput('check_duplicates') == 'true' ? true : false
+    const check_duplicates =
+      core.getInput('check_duplicates') == 'true' ? true : false
     const body = core
       .getInput('body')
       .replace(/%0A/gi, '\n')
