@@ -88,7 +88,7 @@ function get_release_by_tag(tag, draft, prerelease, make_latest, release_name, b
             // @ts-ignore
             return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
         }
-        return update_release(promote, release, tag, overwrite, release_name, body, octokit);
+        return yield update_release(promote, release, tag, overwrite, release_name, body, octokit);
     });
 }
 function update_release(promote, release, tag, overwrite, release_name, body, octokit) {
@@ -113,7 +113,7 @@ function update_release(promote, release, tag, overwrite, release_name, body, oc
         }
         if (updateObject) {
             // @ts-ignore
-            return octokit.request(updateRelease, Object.assign(Object.assign(Object.assign({}, repo()), updateObject), { release_id: release.data.id }));
+            return yield octokit.request(updateRelease, Object.assign(Object.assign(Object.assign({}, repo()), updateObject), { release_id: release.data.id }));
         }
         return release;
     });
