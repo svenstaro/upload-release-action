@@ -72,25 +72,21 @@ function get_release_by_tag(tag, draft, prerelease, make_latest, release_name, b
         }
         catch (error) {
             // If this returns 404, we need to create the release first.
-            if (error.status === 404) {
-                core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
-                if (target_commit) {
-                    try {
-                        yield octokit.request(getRef, Object.assign(Object.assign({}, repo()), { ref: `tags/${tag}` }));
-                        core.warning(`Ignoring target_commit as the tag ${tag} already exists`);
-                    }
-                    catch (tagError) {
-                        if (tagError.status !== 404) {
-                            throw tagError;
-                        }
-                    }
-                }
-                // @ts-ignore
-                return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
-            }
-            else {
+            if (error.status !== 404)
                 throw error;
+            core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
+            if (target_commit) {
+                try {
+                    yield octokit.request(getRef, Object.assign(Object.assign({}, repo()), { ref: `tags/${tag}` }));
+                    core.warning(`Ignoring target_commit as the tag ${tag} already exists`);
+                }
+                catch (tagError) {
+                    if (tagError.status !== 404)
+                        throw tagError;
+                }
             }
+            // @ts-ignore
+            return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
         }
         let updateObject;
         if (promote && release.data.prerelease) {
@@ -187,12 +183,12 @@ function run() {
                 .getInput('tag', { required: true })
                 .replace('refs/tags/', '')
                 .replace('refs/heads/', '');
-            const file_glob = core.getInput('file_glob') == 'true' ? true : false;
-            const overwrite = core.getInput('overwrite') == 'true' ? true : false;
-            const promote = core.getInput('promote') == 'true' ? true : false;
-            const draft = core.getInput('draft') == 'true' ? true : false;
-            const prerelease = core.getInput('prerelease') == 'true' ? true : false;
-            const make_latest = core.getInput('make_latest') != 'false' ? true : false;
+            const file_glob = core.getInput('file_glob') == 'true';
+            const overwrite = core.getInput('overwrite') == 'true';
+            const promote = core.getInput('promote') == 'true';
+            const draft = core.getInput('draft') == 'true';
+            const prerelease = core.getInput('prerelease') == 'true';
+            const make_latest = core.getInput('make_latest') != 'false';
             const release_name = core.getInput('release_name');
             const target_commit = core.getInput('target_commit');
             const body = core
