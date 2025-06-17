@@ -88,6 +88,11 @@ function get_release_by_tag(tag, draft, prerelease, make_latest, release_name, b
             // @ts-ignore
             return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
         }
+        return update_release(promote, release, tag, overwrite, release_name, body, octokit);
+    });
+}
+function update_release(promote, release, tag, overwrite, release_name, body, octokit) {
+    return __awaiter(this, void 0, void 0, function* () {
         let updateObject;
         if (promote && release.data.prerelease) {
             core.debug(`The ${tag} is a prerelease, promoting it to a release.`);

@@ -74,7 +74,26 @@ async function get_release_by_tag(
       target_commitish: target_commit
     })
   }
+  return await update_release(
+    promote,
+    release,
+    tag,
+    overwrite,
+    release_name,
+    body,
+    octokit
+  )
+}
 
+async function update_release(
+  promote: boolean,
+  release: ReleaseByTagResp,
+  tag: string,
+  overwrite: boolean,
+  release_name: string,
+  body: string,
+  octokit: Octokit
+): Promise<ReleaseByTagResp | UpdateReleaseResp> {
   let updateObject: Partial<UpdateReleaseParams> | undefined
   if (promote && release.data.prerelease) {
     core.debug(`The ${tag} is a prerelease, promoting it to a release.`)
@@ -99,7 +118,7 @@ async function get_release_by_tag(
   }
   if (updateObject) {
     // @ts-ignore
-    return octokit.request(updateRelease, {
+    return await octokit.request(updateRelease, {
       ...repo(),
       ...updateObject,
       release_id: release.data.id
