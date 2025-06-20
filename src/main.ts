@@ -223,7 +223,7 @@ async function run(): Promise<void> {
     const release_name = core.getInput('release_name')
     const target_commit = core.getInput('target_commit')
     const check_duplicates =
-      core.getInput('check_duplicates') == 'true' ? true : false
+      core.getInput('check_duplicates') != 'false' ? true : false
     const body = core
       .getInput('body')
       .replace(/%0A/gi, '\n')
