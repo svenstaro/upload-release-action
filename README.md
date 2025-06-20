@@ -25,6 +25,7 @@ Optional Arguments
 - `target_commit`: Sets the commit hash or branch for the tag to be based on (Default: the default branch, usually `main`).
 - `body`: Content of the release text (Default: `""`).
 - `repo_name`: Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted. If the repository is other than the current, it is required to create a personal access token with `repo`, `user`, `admin:repo_hook` scopes to the foreign repository and add it as a secret. (Default: current repository).
+- `check_duplicates`: Enable or disable the check for existing assets with the same name. If enabled, the action will skip uploading the asset if it already exists. (Default: `true`).
 
 ## Output variables
 
