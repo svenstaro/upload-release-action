@@ -86,6 +86,7 @@ jobs:
 
     - name: Should fail uploading copy of the same file
       id: test-step
+      if: ${{ matrix.os }} != 'windows-latest' # Bash-style if statements do not work on Windows
       uses: ./
       continue-on-error: true
       with:
@@ -96,6 +97,7 @@ jobs:
         body: "new body"
 
     - name: Verify failure occurred
+      if: ${{ matrix.os }} != 'windows-latest' # Bash-style if statements do not work on Windows
       run: |
         if [ "${{ steps.test-step.outcome }}" == "failure" ]; then
           echo "Test passed - step failed as expected"
