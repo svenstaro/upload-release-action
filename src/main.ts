@@ -46,40 +46,54 @@ async function get_release_by_tag(
     })
   } catch (error: any) {
     // If this returns 404, we need to create the release first.
-    if (error.status === 404) {
-      core.debug(
-        `Release for tag ${tag} doesn't exist yet so we'll create it now.`
-      )
-      if (target_commit) {
-        try {
-          await octokit.request(getRef, {
-            ...repo(),
-            ref: `tags/${tag}`
-          })
-          core.warning(
-            `Ignoring target_commit as the tag ${tag} already exists`
-          )
-        } catch (tagError: any) {
-          if (tagError.status !== 404) {
-            throw tagError
-          }
-        }
+    if (error.status !== 404) throw error
+
+    core.debug(
+      `Release for tag ${tag} doesn't exist yet so we'll create it now.`
+    )
+    if (target_commit) {
+      try {
+        await octokit.request(getRef, {
+          ...repo(),
+          ref: `tags/${tag}`
+        })
+        core.warning(`Ignoring target_commit as the tag ${tag} already exists`)
+      } catch (tagError: any) {
+        if (tagError.status !== 404) throw tagError
       }
-      // @ts-ignore
-      return await octokit.request(createRelease, {
-        ...repo(),
-        tag_name: tag,
-        draft: draft,
-        prerelease: prerelease,
-        make_latest: make_latest ? 'true' : 'false',
-        name: release_name,
-        body: body,
-        target_commitish: target_commit
-      })
-    } else {
-      throw error
     }
+    // @ts-ignore
+    return await octokit.request(createRelease, {
+      ...repo(),
+      tag_name: tag,
+      draft: draft,
+      prerelease: prerelease,
+      make_latest: make_latest ? 'true' : 'false',
+      name: release_name,
+      body: body,
+      target_commitish: target_commit
+    })
   }
+  return await update_release(
+    promote,
+    release,
+    tag,
+    overwrite,
+    release_name,
+    body,
+    octokit
+  )
+}
+
+async function update_release(
+  promote: boolean,
+  release: ReleaseByTagResp,
+  tag: string,
+  overwrite: boolean,
+  release_name: string,
+  body: string,
+  octokit: Octokit
+): Promise<ReleaseByTagResp | UpdateReleaseResp> {
   let updateObject: Partial<UpdateReleaseParams> | undefined
   if (promote && release.data.prerelease) {
     core.debug(`The ${tag} is a prerelease, promoting it to a release.`)
@@ -104,7 +118,7 @@ async function get_release_by_tag(
   }
   if (updateObject) {
     // @ts-ignore
-    return octokit.request(updateRelease, {
+    return await octokit.request(updateRelease, {
       ...repo(),
       ...updateObject,
       release_id: release.data.id
@@ -211,12 +225,12 @@ async function run(): Promise<void> {
       .replace('refs/tags/', '')
       .replace('refs/heads/', '')
 
-    const file_glob = core.getInput('file_glob') == 'true' ? true : false
-    const overwrite = core.getInput('overwrite') == 'true' ? true : false
-    const promote = core.getInput('promote') == 'true' ? true : false
-    const draft = core.getInput('draft') == 'true' ? true : false
-    const prerelease = core.getInput('prerelease') == 'true' ? true : false
-    const make_latest = core.getInput('make_latest') != 'false' ? true : false
+    const file_glob = core.getInput('file_glob') == 'true'
+    const overwrite = core.getInput('overwrite') == 'true'
+    const promote = core.getInput('promote') == 'true'
+    const draft = core.getInput('draft') == 'true'
+    const prerelease = core.getInput('prerelease') == 'true'
+    const make_latest = core.getInput('make_latest') != 'false'
     const release_name = core.getInput('release_name')
     const target_commit = core.getInput('target_commit')
     const body = core
