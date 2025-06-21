@@ -18,6 +18,7 @@ Optional Arguments
 - `file_glob`: If set to true, the `file` argument can be a glob pattern (`asset_name` is ignored in this case) (Default: `false`)
 - `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
 - `check_duplicates`: Check for existing assets with the same name. Disabling removes this validity check, and allows reduced Github API usage when there are a large number of files (Default: `true`).
+  - Note that this will cause reuploads of the same file to fail - for that, use `overwrite` instead.
 - `promote`: If a prerelease already exists, promote it to a release (Default: `false`).
 - `draft`: Sets the release as a draft instead of publishing it, allowing you to make any edits needed before releasing (Default: `false`).
 - `prerelease`: Mark the release as a pre-release (Default: `false`).
