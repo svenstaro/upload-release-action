@@ -85,6 +85,7 @@ jobs:
           
 
     - name: Should fail uploading copy of the same file
+      id: test-step
       uses: ./
       continue-on-error: true
       with:
