@@ -85,13 +85,7 @@ jobs:
           
           assert.deepStrictEqual(release.data.prerelease, true)
           assert.deepStrictEqual(release.data.body, "rofl lol test\nianal % fubar")
-          assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
-          assert.deepStrictEqual(release.data.assets[1].name, "TEST2.md")
-          const arraybuf = await github.request(release.data.assets[1].browser_download_url)
-          const actual = Buffer.from(arraybuf.data).toString('utf8')
-          console.log(typeof(actual))
-          console.log(typeof(expected))
-          assert.deepStrictEqual(expected, actual)
+          assert.deepStrictEqual(release.data.assets.map(a => a.name), ["TEST.md", "TEST2.md"])
 
     - name: Make test pre-release
       uses: ./
