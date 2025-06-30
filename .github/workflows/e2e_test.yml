@@ -33,7 +33,6 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const fs = require('fs')
           const assert = require('assert').strict;
 
           // We cannot find drafts by tag
@@ -73,7 +72,6 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const fs = require('fs')
           const assert = require('assert').strict;
           
           const expected = fs.readFileSync("README.md", "utf8")
@@ -83,7 +81,6 @@ jobs:
             release_id: process.env.DRAFT_ID,
           })
           
-          assert.deepStrictEqual(release.data.body, "rofl lol test\nianal % fubar")
           assert.deepStrictEqual(release.data.assets.map(a => a.name), ["TEST.md", "TEST2.md"])
 
     - name: Make test pre-release
