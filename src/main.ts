@@ -88,7 +88,6 @@ async function get_or_create_release(
       body: body,
       target_commitish: target_commit
     })
-    core.setOutput('draft_id', _release.data.id)
     return _release
   }
 
@@ -286,6 +285,7 @@ async function run(): Promise<void> {
       target_commit,
       release_id
     )
+    core.setOutput('release_id', release.data.id)
 
     if (file_glob) {
       const files = glob.sync(file)

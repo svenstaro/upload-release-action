@@ -67,7 +67,8 @@ function get_or_create_release(tag_1, draft_1, prerelease_1, make_latest_1, rele
     return __awaiter(this, arguments, void 0, function* (tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, release_id = 0) {
         let release;
         try {
-            if (release_id !== 0) { // Draft releases can only be found by ID, not by tag.
+            if (release_id !== 0) {
+                // Draft releases can only be found by ID, not by tag.
                 core.info(`Getting release by id ${release_id}`);
                 release = yield octokit.request(releaseByID, Object.assign(Object.assign({}, repo()), { release_id: release_id }));
                 core.debug(`The release has the following ID: ${release.data.id}`);
@@ -95,7 +96,6 @@ function get_or_create_release(tag_1, draft_1, prerelease_1, make_latest_1, rele
             }
             // @ts-ignore
             const _release = yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
-            core.setOutput('draft_id', _release.data.id);
             return _release;
         }
         return yield update_release(promote, release, tag, overwrite, release_name, body, octokit);
@@ -221,6 +221,7 @@ function run() {
                 .replace(/%25/g, '%');
             const octokit = github.getOctokit(token);
             const release = yield get_or_create_release(tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, release_id);
+            core.setOutput('release_id', release.data.id);
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {
