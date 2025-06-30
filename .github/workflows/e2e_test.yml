@@ -5,9 +5,10 @@ on: [push, workflow_dispatch]
 # This essentially gives permissions to make ANY change in the repository, so we should not grant this to PRs
 # This is an open issue for Github, see https://github.com/orgs/community/discussions/68252
 
+
 jobs:
-  test: # make sure the action works on a clean machine without building
-    name: E2E test
+  test-draft:
+    name: Test Draft uploads
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -22,7 +23,6 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: README.md
         asset_name: TEST.md
-        tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
         draft: true
         body: "rofl lol test%0Aianal %25 fubar"
 
@@ -80,6 +80,27 @@ jobs:
           })
           
           assert.deepStrictEqual(release.data.assets.map(a => a.name), ["TEST.md", "TEST2.md"])
+
+    - name: Clean up
+      if: ${{ always() }}
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.rest.repos.deleteRelease({
+            ...context.repo,
+            release_id: ${{ steps.make-draft.outputs.release_id }},
+          })
+
+
+  test-prerelease-promote:
+    name: Test prerelease & promote
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v4
 
     - name: Make test pre-release
       uses: ./
