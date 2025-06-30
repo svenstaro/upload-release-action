@@ -9,25 +9,26 @@ You must provide:
 
 - `file`: A local file to be uploaded as the asset.
 
-Optional Arguments
+### Optional Arguments
 
-- `repo_token`: Defaults to `github.token`.
-- `tag`: The tag to upload into. If you want the current event's tag or branch name, use `${{ github.ref }}` (the `refs/tags/` and `refs/heads/` prefixes will be automatically stripped). Defaults to `github.ref`.
-- `asset_name`: The name the file gets as an asset on a release. Use `$tag` to include the tag name. When not provided it will default to the filename.
-                This is not used if `file_glob` is set to `true`.
-- `file_glob`: If set to true, the `file` argument can be a glob pattern (`asset_name` is ignored in this case) (Default: `false`)
-- `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
-- `check_duplicates`: Check for existing assets with the same name. Disabling removes this validity check, and allows reduced Github API usage when there are a large number of files (Default: `true`).
-  - Note that this will cause reuploads of the same file to fail - for that, use `overwrite` instead.
-- `promote`: If a prerelease already exists, promote it to a release (Default: `false`).
-- `draft`: Sets the release as a draft instead of publishing it, allowing you to make any edits needed before releasing (Default: `false`).
-  - `release_id`: Used for searching for existing release, instead of tag. Must be used if uploading files to an existing draft release.
-- `prerelease`: Mark the release as a pre-release (Default: `false`).
-- `make_latest`: Mark the release as the latest release for the repository (Default: `true`).
-- `release_name`: Explicitly set a release name. (Defaults: implicitly same as `tag` via GitHub API).
-- `target_commit`: Sets the commit hash or branch for the tag to be based on (Default: the default branch, usually `main`).
-- `body`: Content of the release text (Default: `""`).
-- `repo_name`: Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted. If the repository is other than the current, it is required to create a personal access token with `repo`, `user`, `admin:repo_hook` scopes to the foreign repository and add it as a secret. (Default: current repository).
+
+| **Argument**       | **Default**                     | **Description**                                                                                                                                                                   |
+|--------------------|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `repo_token`       | `github.token`                  | Defaults to `github.token`.                                                                                                                                                       |
+| `tag`              | `github.ref`                    | The tag to upload into. If you want the current event's tag or branch name, use `${{ github.ref }}` (the `refs/tags/` and `refs/heads/` prefixes will be automatically stripped). |
+| `asset_name`       | Filename                        | The name the file gets as an asset on a release. Use `$tag` to include the tag name. This is not used if `file_glob` is set to `true`.                                            |
+| `file_glob`        | `false`                         | If set to true, the `file` argument can be a glob pattern (`asset_name` is ignored in this case).                                                                                 |
+| `overwrite`        | `false`                         | If an asset with the same name already exists, overwrite it.                                                                                                                      |
+| `check_duplicates` | `true`                          | Check for existing assets with the same name. Disabling removes this validity check, and allows reduced Github API usage when there are a large number of files.                  |
+| `promote`          | `false`                         | If a prerelease already exists, promote it to a release.                                                                                                                          |
+| `draft`            | `false`                         | Sets the release as a draft instead of publishing it, allowing you to make any edits needed before releasing.                                                                     |
+| `release_id`       | ---                             | Used for searching for existing release, instead of tag. Must be used if uploading files to an existing draft release.                                                            |
+| `prerelease`       | `false`                         | Mark the release as a pre-release.                                                                                                                                                |
+| `make_latest`      | `true`                          | Mark the release as the latest release for the repository.                                                                                                                        |
+| `release_name`     | Same as `tag`                   | Explicitly set a release name.                                                                                                                                                    |
+| `target_commit`    | Default branch (usually `main`) | Sets the commit hash or branch for the tag to be based on.                                                                                                                        |
+| `body`             | `""`                            | Content of the release text.                                                                                                                                                      |
+| `repo_name`        | Current repository              | Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted.                                                                       |
 
 ## Output variables
 

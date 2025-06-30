@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.11.0] - 2025-06-30
+- Adds a `release_id` output, and optional input, for uploading files to release - [#136](https://github.com/svenstaro/upload-release-action/pull/136) (thanks @alexis-opolka)
+
 ## [2.10.0] - 2025-06-21
 - Adds the ability to disable duplicate check, for lower Github API usage - [#142](https://github.com/svenstaro/upload-release-action/pull/142) (thanks @colinsullivan)
 
