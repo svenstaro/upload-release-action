@@ -69,6 +69,8 @@ jobs:
 
     - name: Check that files can be uploaded to existing draft
       uses: actions/github-script@v7
+      env:
+        DRAFT_ID: ${{ steps.make-test-draft.outputs.draft_id }}
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
