@@ -67,15 +67,15 @@ function get_release_by_tag(tag_1, draft_1, prerelease_1, make_latest_1, release
     return __awaiter(this, arguments, void 0, function* (tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, known_draft_id = 0) {
         let release;
         try {
-            core.debug(`Draft ID: ${known_draft_id}`);
+            core.info(`Draft ID: ${known_draft_id}`);
             if (draft && known_draft_id !== 0) {
                 // We are working with a draft release and we already created it
-                core.debug(`Getting release by id ${known_draft_id} because we're working with a draft release.`);
+                core.info(`Getting release by id ${known_draft_id} because we're working with a draft release.`);
                 release = yield octokit.request(releaseByID, Object.assign(Object.assign({}, repo()), { release_id: known_draft_id }));
                 core.debug(`The release has the following ID: ${release.data.id}`);
             }
             else {
-                core.debug(`Getting release by tag ${tag}.`);
+                core.info(`Getting release by tag ${tag}.`);
                 // @ts-ignore
                 release = yield octokit.request(releaseByTag, Object.assign(Object.assign({}, repo()), { tag: tag }));
             }
@@ -84,7 +84,7 @@ function get_release_by_tag(tag_1, draft_1, prerelease_1, make_latest_1, release
             // If this returns 404, we need to create the release first.
             if (error.status !== 404)
                 throw error;
-            core.debug(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
+            core.info(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
             if (target_commit) {
                 try {
                     yield octokit.request(getRef, Object.assign(Object.assign({}, repo()), { ref: `tags/${tag}` }));
@@ -107,18 +107,18 @@ function update_release(promote, release, tag, overwrite, release_name, body, oc
     return __awaiter(this, void 0, void 0, function* () {
         let updateObject;
         if (promote && release.data.prerelease) {
-            core.debug(`The ${tag} is a prerelease, promoting it to a release.`);
+            core.info(`The ${tag} is a prerelease, promoting it to a release.`);
             updateObject = updateObject || {};
             updateObject.prerelease = false;
         }
         if (overwrite) {
             if (release_name && release.data.name !== release_name) {
-                core.debug(`The ${tag} release already exists with a different name ${release.data.name} so we'll overwrite it.`);
+                core.info(`The ${tag} release already exists with a different name ${release.data.name} so we'll overwrite it.`);
                 updateObject = updateObject || {};
                 updateObject.name = release_name;
             }
             if (body && release.data.body !== body) {
-                core.debug(`The ${tag} release already exists with a different body ${release.data.body} so we'll overwrite it.`);
+                core.info(`The ${tag} release already exists with a different body ${release.data.body} so we'll overwrite it.`);
                 updateObject = updateObject || {};
                 updateObject.body = body;
             }
@@ -134,12 +134,12 @@ function upload_to_release(release, file, asset_name, tag, overwrite, octokit, c
     return __awaiter(this, void 0, void 0, function* () {
         const stat = fs.statSync(file);
         if (!stat.isFile()) {
-            core.debug(`Skipping ${file}, since its not a file`);
+            core.warning(`Skipping ${file}, since its not a file`);
             return;
         }
         const file_size = stat.size;
         if (file_size === 0) {
-            core.debug(`Skipping ${file}, since its size is 0`);
+            core.warning(`Skipping ${file}, since its size is 0`);
             return;
         }
         if (check_duplicates) {
@@ -148,7 +148,7 @@ function upload_to_release(release, file, asset_name, tag, overwrite, octokit, c
             const duplicate_asset = assets.find(a => a.name === asset_name);
             if (duplicate_asset !== undefined) {
                 if (overwrite) {
-                    core.debug(`An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`);
+                    core.info(`An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`);
                     yield octokit.request(deleteAssets, Object.assign(Object.assign({}, repo()), { asset_id: duplicate_asset.id }));
                 }
                 else {
@@ -160,7 +160,7 @@ function upload_to_release(release, file, asset_name, tag, overwrite, octokit, c
                 core.debug(`No pre-existing asset called ${asset_name} found in release ${tag}. All good.`);
             }
         }
-        core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`);
+        core.info(`Uploading ${file} to ${asset_name} in release ${tag}.`);
         // @ts-ignore
         const uploaded_asset = yield (0, attempt_1.retry)(() => __awaiter(this, void 0, void 0, function* () {
             return octokit.request(uploadAssets, Object.assign(Object.assign({}, repo()), { release_id: release.data.id, url: release.data.upload_url, name: asset_name, data: fs.createReadStream(file), headers: {

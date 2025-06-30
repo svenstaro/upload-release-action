@@ -40,11 +40,11 @@ async function get_release_by_tag(
 ): Promise<ReleaseByTagResp | CreateReleaseResp | UpdateReleaseResp> {
   let release: ReleaseByTagResp | ReleaseByIDResp
   try {
-    core.debug(`Draft ID: ${known_draft_id}`)
+    core.info(`Draft ID: ${known_draft_id}`)
 
     if (draft && known_draft_id !== 0) {
       // We are working with a draft release and we already created it
-      core.debug(
+      core.info(
         `Getting release by id ${known_draft_id} because we're working with a draft release.`
       )
       release = await octokit.request(releaseByID, {
@@ -54,7 +54,7 @@ async function get_release_by_tag(
 
       core.debug(`The release has the following ID: ${release.data.id}`)
     } else {
-      core.debug(`Getting release by tag ${tag}.`)
+      core.info(`Getting release by tag ${tag}.`)
       // @ts-ignore
       release = await octokit.request(releaseByTag, {
         ...repo(),
@@ -65,7 +65,7 @@ async function get_release_by_tag(
     // If this returns 404, we need to create the release first.
     if (error.status !== 404) throw error
 
-    core.debug(
+    core.info(
       `Release for tag ${tag} doesn't exist yet so we'll create it now.`
     )
     if (target_commit) {
@@ -93,6 +93,7 @@ async function get_release_by_tag(
     core.setOutput('draft_id', _release.data.id)
     return _release
   }
+
   return await update_release(
     promote,
     release,
@@ -106,7 +107,7 @@ async function get_release_by_tag(
 
 async function update_release(
   promote: boolean,
-  release: ReleaseByTagResp,
+  release: ReleaseByTagResp | ReleaseByIDResp,
   tag: string,
   overwrite: boolean,
   release_name: string,
@@ -114,27 +115,30 @@ async function update_release(
   octokit: Octokit
 ): Promise<ReleaseByTagResp | UpdateReleaseResp> {
   let updateObject: Partial<UpdateReleaseParams> | undefined
+
   if (promote && release.data.prerelease) {
-    core.debug(`The ${tag} is a prerelease, promoting it to a release.`)
+    core.info(`The ${tag} is a prerelease, promoting it to a release.`)
     updateObject = updateObject || {}
     updateObject.prerelease = false
   }
+
   if (overwrite) {
     if (release_name && release.data.name !== release_name) {
-      core.debug(
+      core.info(
         `The ${tag} release already exists with a different name ${release.data.name} so we'll overwrite it.`
       )
       updateObject = updateObject || {}
       updateObject.name = release_name
     }
     if (body && release.data.body !== body) {
-      core.debug(
+      core.info(
         `The ${tag} release already exists with a different body ${release.data.body} so we'll overwrite it.`
       )
       updateObject = updateObject || {}
       updateObject.body = body
     }
   }
+
   if (updateObject) {
     // @ts-ignore
     return await octokit.request(updateRelease, {
@@ -157,12 +161,12 @@ async function upload_to_release(
 ): Promise<undefined | string> {
   const stat = fs.statSync(file)
   if (!stat.isFile()) {
-    core.debug(`Skipping ${file}, since its not a file`)
+    core.warning(`Skipping ${file}, since its not a file`)
     return
   }
   const file_size = stat.size
   if (file_size === 0) {
-    core.debug(`Skipping ${file}, since its size is 0`)
+    core.warning(`Skipping ${file}, since its size is 0`)
     return
   }
 
@@ -175,7 +179,7 @@ async function upload_to_release(
     const duplicate_asset = assets.find(a => a.name === asset_name)
     if (duplicate_asset !== undefined) {
       if (overwrite) {
-        core.debug(
+        core.info(
           `An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`
         )
         await octokit.request(deleteAssets, {
@@ -193,7 +197,7 @@ async function upload_to_release(
     }
   }
 
-  core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`)
+  core.info(`Uploading ${file} to ${asset_name} in release ${tag}.`)
 
   // @ts-ignore
   const uploaded_asset: UploadAssetResp = await retry(

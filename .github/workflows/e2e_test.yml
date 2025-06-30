@@ -15,8 +15,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Make test draft
-      id: make-test-draft
+    - name: Make draft
+      id: make-draft
       uses: ./
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -29,7 +29,7 @@ jobs:
     - name: Assert draft release get be retrieved
       uses: actions/github-script@v7
       env:
-        DRAFT_ID: ${{ steps.make-test-draft.outputs.draft_id }}
+        DRAFT_ID: ${{ steps.make-draft.outputs.draft_id }}
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -62,14 +62,14 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: README.md
         asset_name: TEST2.md
-        draft_id: ${{ steps.make-test-draft.outputs.draft_id }}
-        tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
         draft: true
+        draft_id: ${{ steps.make-draft.outputs.draft_id }}
+        tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
 
     - name: Check that files can be uploaded to existing draft
       uses: actions/github-script@v7
       env:
-        DRAFT_ID: ${{ steps.make-test-draft.outputs.draft_id }}
+        DRAFT_ID: ${{ steps.make-draft.outputs.draft_id }}
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
