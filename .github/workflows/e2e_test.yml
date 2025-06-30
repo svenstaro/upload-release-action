@@ -34,11 +34,14 @@ jobs:
           const assert = require('assert').strict;
 
           // We cannot find drafts by tag
-          const releaseByTag = await github.rest.repos.getReleaseByTag({
-            ...context.repo,
-            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}"
-          })
-          assert.equal(release, None)
+          try {
+            const release = await github.rest.repos.getReleaseByTag({
+              ...context.repo,
+              tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}"
+            })
+          } catch (error) {
+            assert.equal(error.status, 404)
+          }
           
           // Instead we can find them by ID
           const release = await github.rest.repos.getReleaseById({
