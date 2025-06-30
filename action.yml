@@ -40,6 +40,9 @@ inputs:
     description: 'Specify the name of the GitHub repository in which the GitHub release will be created, edited, and deleted. If the repository is other than the current, it is required to create a personal access token with `repo`, `user`, `admin:repo_hook` scopes to the foreign repository and add it as a secret. Defaults to the current repository'
   draft_id:
     description: 'Specify the ID of the draft release you want to upload to.'
+  check_duplicates:
+    description: 'Check for duplicate assets with the same name in the release and skip uploading of those. Defaults to "true".'
+    default: true
 outputs:
   browser_download_url:
     description: 'The publicly available URL of the asset.'

@@ -1,4 +1,4 @@
-# Upload files to a GitHub release [![GitHub Actions Workflow](https://github.com/svenstaro/upload-release-action/actions/workflows/ci.yml/badge.svg)](https://github.com/svenstaro/upload-release-action/actions)
+# Upload files to a GitHub release [![GitHub Actions Workflow](https://github.com/svenstaro/upload-release-action/actions/workflows/e2e_test.yml/badge.svg)](https://github.com/svenstaro/upload-release-action/actions)
 
 This action allows you to select which files to upload to the just-tagged release.
 It runs on all operating systems types offered by GitHub.
@@ -17,6 +17,8 @@ Optional Arguments
                 This is not used if `file_glob` is set to `true`.
 - `file_glob`: If set to true, the `file` argument can be a glob pattern (`asset_name` is ignored in this case) (Default: `false`)
 - `overwrite`: If an asset with the same name already exists, overwrite it (Default: `false`).
+- `check_duplicates`: Check for existing assets with the same name. Disabling removes this validity check, and allows reduced Github API usage when there are a large number of files (Default: `true`).
+  - Note that this will cause reuploads of the same file to fail - for that, use `overwrite` instead.
 - `promote`: If a prerelease already exists, promote it to a release (Default: `false`).
 - `draft`: Sets the release as a draft instead of publishing it, allowing you to make any edits needed before releasing (Default: `false`).
 - `prerelease`: Mark the release as a pre-release (Default: `false`).
@@ -51,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
@@ -93,7 +95,7 @@ jobs:
             asset_name: mything-macos-amd64
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build --release --locked
     - name: Upload binaries to release
@@ -119,7 +121,7 @@ jobs:
     name: Publish binaries
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
@@ -148,7 +150,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build --release
     - name: Upload binaries to release
@@ -186,7 +188,7 @@ jobs:
     runs-on: ubuntu-latest
          
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # This step reads a file from repo and use it for body of the release
       # This works on any self-hosted runner OS
@@ -219,6 +221,8 @@ in your workflow, you will need to add the `contents: write` permission to the t
 permissions:
   contents: write
 ```
+
+By default, these permissions are granted on `push` but not on `pr` - and you should be wary of adding them, as they allow [wide access to changing the entire repo's contents](https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-contents)
 
 ## Releasing
 

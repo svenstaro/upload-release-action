@@ -1,6 +1,6 @@
 {
   "name": "upload-release-action",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "private": true,
   "description": "Upload files to a GitHub release",
   "main": "lib/main.js",
@@ -30,7 +30,7 @@
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
     "@lifeomic/attempt": "^3.1.0",
-    "@octokit/core": "^6.1.2",
+    "@octokit/core": "^5.2.1",
     "glob": "^11"
   },
   "devDependencies": {

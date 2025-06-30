@@ -1,19 +1,11 @@
-name: "CI"
-on: [pull_request, push]
+name: "E2E test"
+on: [push, workflow_dispatch]
+
+# End to end tests require content permissions to create releases
+# This essentially gives permissions to make ANY change in the repository, so we should not grant this to PRs
+# This is an open issue for Github, see https://github.com/orgs/community/discussions/68252
 
 jobs:
-  build: # make sure build/ci work properly
-    name: CI on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-    - uses: actions/checkout@v4
-    - run: |
-        npm install
-        npm run all
-
   test: # make sure the action works on a clean machine without building
     name: E2E test
     runs-on: ${{ matrix.os }}
@@ -22,6 +14,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
     - uses: actions/checkout@v4
+
     - name: Make test pre-release
       uses: ./
       with:
@@ -33,6 +26,7 @@ jobs:
         prerelease: true
         make_latest: true
         body: "rofl lol test%0Aianal %25 fubar"
+
     - name: Check that the uploaded asset is readable
       uses: actions/github-script@v7
       with:
@@ -54,6 +48,7 @@ jobs:
           console.log(typeof(actual))
           console.log(typeof(expected))
           assert.deepStrictEqual(expected, actual)
+
     - name: Make test promote
       uses: ./
       with:
@@ -66,6 +61,7 @@ jobs:
         prerelease: false
         make_latest: true
         body: "new body"
+
     - name: Check that the release is promoted
       uses: actions/github-script@v7
       with:
@@ -86,6 +82,31 @@ jobs:
           const arraybuf = await github.request(release.data.assets[0].browser_download_url)
           const actual = Buffer.from(arraybuf.data).toString('utf8')
           assert.deepStrictEqual(expected, actual)
+          
+
+    - name: Should fail uploading copy of the same file
+      id: test-step
+      if: matrix.os != 'windows-latest' # Bash-style if statements do not work on Windows
+      uses: ./
+      continue-on-error: true
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: README.md
+        asset_name: TEST.md
+        tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
+        body: "new body"
+
+    - name: Verify failure occurred
+      if: matrix.os != 'windows-latest' # Bash-style if statements do not work on Windows
+      run: |
+        if [ "${{ steps.test-step.outcome }}" == "failure" ]; then
+          echo "Test passed - step failed as expected"
+          exit 0
+        else
+          echo "Test failed - step should have failed but didn't"
+          exit 1
+        fi
+
     - name: Clean up
       if: ${{ always() }}
       uses: actions/github-script@v7

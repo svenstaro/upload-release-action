@@ -55,6 +55,7 @@ async function get_release_by_tag(
       core.debug(`The release has the following ID: ${release.data.id}`)
     } else {
       core.debug(`Getting release by tag ${tag}.`)
+      // @ts-ignore
       release = await octokit.request(releaseByTag, {
         ...repo(),
         tag: tag
@@ -62,43 +63,56 @@ async function get_release_by_tag(
     }
   } catch (error: any) {
     // If this returns 404, we need to create the release first.
-    if (error.status === 404) {
-      core.debug(
-        `Release for tag ${tag} doesn't exist yet so we'll create it now.`
-      )
-      if (target_commit) {
-        try {
-          await octokit.request(getRef, {
-            ...repo(),
-            ref: `tags/${tag}`
-          })
-          core.warning(
-            `Ignoring target_commit as the tag ${tag} already exists`
-          )
-        } catch (tagError: any) {
-          if (tagError.status !== 404) {
-            throw tagError
-          }
-        }
+    if (error.status !== 404) throw error
+
+    core.debug(
+      `Release for tag ${tag} doesn't exist yet so we'll create it now.`
+    )
+    if (target_commit) {
+      try {
+        await octokit.request(getRef, {
+          ...repo(),
+          ref: `tags/${tag}`
+        })
+        core.warning(`Ignoring target_commit as the tag ${tag} already exists`)
+      } catch (tagError: any) {
+        if (tagError.status !== 404) throw tagError
       }
-      const _release = await octokit.request(createRelease, {
-        ...repo(),
-        tag_name: tag,
-        draft: draft,
-        prerelease: prerelease,
-        make_latest: make_latest ? 'true' : 'false',
-        name: release_name,
-        body: body,
-        target_commitish: target_commit
-      })
-
-      core.setOutput('draft_id', _release.data.id)
-
-      return _release
-    } else {
-      throw error
     }
+    // @ts-ignore
+    const _release = await octokit.request(createRelease, {
+      ...repo(),
+      tag_name: tag,
+      draft: draft,
+      prerelease: prerelease,
+      make_latest: make_latest ? 'true' : 'false',
+      name: release_name,
+      body: body,
+      target_commitish: target_commit
+    })
+    core.setOutput('draft_id', _release.data.id)
+    return _release
   }
+  return await update_release(
+    promote,
+    release,
+    tag,
+    overwrite,
+    release_name,
+    body,
+    octokit
+  )
+}
+
+async function update_release(
+  promote: boolean,
+  release: ReleaseByTagResp,
+  tag: string,
+  overwrite: boolean,
+  release_name: string,
+  body: string,
+  octokit: Octokit
+): Promise<ReleaseByTagResp | UpdateReleaseResp> {
   let updateObject: Partial<UpdateReleaseParams> | undefined
   if (promote && release.data.prerelease) {
     core.debug(`The ${tag} is a prerelease, promoting it to a release.`)
@@ -122,7 +136,8 @@ async function get_release_by_tag(
     }
   }
   if (updateObject) {
-    return octokit.request(updateRelease, {
+    // @ts-ignore
+    return await octokit.request(updateRelease, {
       ...repo(),
       ...updateObject,
       release_id: release.data.id
@@ -137,7 +152,8 @@ async function upload_to_release(
   asset_name: string,
   tag: string,
   overwrite: boolean,
-  octokit: ReturnType<(typeof github)['getOctokit']>
+  octokit: ReturnType<(typeof github)['getOctokit']>,
+  check_duplicates: boolean
 ): Promise<undefined | string> {
   const stat = fs.statSync(file)
   if (!stat.isFile()) {
@@ -150,32 +166,36 @@ async function upload_to_release(
     return
   }
 
-  // Check for duplicates.
-  const assets: RepoAssetsResp = await octokit.paginate(repoAssets, {
-    ...repo(),
-    release_id: release.data.id
-  })
-  const duplicate_asset = assets.find(a => a.name === asset_name)
-  if (duplicate_asset !== undefined) {
-    if (overwrite) {
-      core.debug(
-        `An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`
-      )
-      await octokit.request(deleteAssets, {
-        ...repo(),
-        asset_id: duplicate_asset.id
-      })
+  if (check_duplicates) {
+    // Check for duplicates.
+    const assets: RepoAssetsResp = await octokit.paginate(repoAssets, {
+      ...repo(),
+      release_id: release.data.id
+    })
+    const duplicate_asset = assets.find(a => a.name === asset_name)
+    if (duplicate_asset !== undefined) {
+      if (overwrite) {
+        core.debug(
+          `An asset called ${asset_name} already exists in release ${tag} so we'll overwrite it.`
+        )
+        await octokit.request(deleteAssets, {
+          ...repo(),
+          asset_id: duplicate_asset.id
+        })
+      } else {
+        core.setFailed(`An asset called ${asset_name} already exists.`)
+        return duplicate_asset.browser_download_url
+      }
     } else {
-      core.setFailed(`An asset called ${asset_name} already exists.`)
-      return duplicate_asset.browser_download_url
+      core.debug(
+        `No pre-existing asset called ${asset_name} found in release ${tag}. All good.`
+      )
     }
-  } else {
-    core.debug(
-      `No pre-existing asset called ${asset_name} found in release ${tag}. All good.`
-    )
   }
 
   core.debug(`Uploading ${file} to ${asset_name} in release ${tag}.`)
+
+  // @ts-ignore
   const uploaded_asset: UploadAssetResp = await retry(
     async () => {
       return octokit.request(uploadAssets, {
@@ -227,15 +247,17 @@ async function run(): Promise<void> {
       .replace('refs/tags/', '')
       .replace('refs/heads/', '')
 
-    const file_glob = core.getInput('file_glob') == 'true' ? true : false
-    const overwrite = core.getInput('overwrite') == 'true' ? true : false
-    const promote = core.getInput('promote') == 'true' ? true : false
-    const draft = core.getInput('draft') == 'true' ? true : false
-    const prerelease = core.getInput('prerelease') == 'true' ? true : false
-    const make_latest = core.getInput('make_latest') != 'false' ? true : false
+    const file_glob = core.getInput('file_glob') == 'true'
+    const overwrite = core.getInput('overwrite') == 'true'
+    const promote = core.getInput('promote') == 'true'
+    const draft = core.getInput('draft') == 'true'
+    const prerelease = core.getInput('prerelease') == 'true'
+    const make_latest = core.getInput('make_latest') != 'false'
     const release_name = core.getInput('release_name')
     const target_commit = core.getInput('target_commit')
     const draft_release_id = core.getInput('draft_id')
+    const check_duplicates =
+      core.getInput('check_duplicates') != 'false' ? true : false
     const body = core
       .getInput('body')
       .replace(/%0A/gi, '\n')
@@ -268,7 +290,8 @@ async function run(): Promise<void> {
             asset_name,
             tag,
             overwrite,
-            octokit
+            octokit,
+            check_duplicates
           )
           core.setOutput('browser_download_url', asset_download_url)
         }
@@ -286,7 +309,8 @@ async function run(): Promise<void> {
         asset_name,
         tag,
         overwrite,
-        octokit
+        octokit,
+        check_duplicates
       )
       core.setOutput('browser_download_url', asset_download_url)
     }

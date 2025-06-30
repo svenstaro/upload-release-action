@@ -1,0 +1,15 @@
+name: "Build"
+on: [pull_request, push, workflow_dispatch]
+
+jobs:
+  build: # make sure build/ci work properly
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v4
+    - run: |
+        npm install
+        npm run all
