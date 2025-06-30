@@ -1,10 +1,6 @@
 name: "Build"
 on: [pull_request, push, workflow_dispatch]
 
-concurrency: # To avoid double-build on pull request from another branch in this repo
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build: # make sure build/ci work properly
     name: Build on ${{ matrix.os }}
