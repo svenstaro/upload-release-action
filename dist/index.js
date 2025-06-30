@@ -57,18 +57,28 @@ const glob = __importStar(__nccwpck_require__(1363));
 const attempt_1 = __nccwpck_require__(7552);
 const getRef = 'GET /repos/{owner}/{repo}/git/ref/{ref}';
 const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}';
+const releaseByID = 'GET /repos/{owner}/{repo}/releases/{release_id}';
 const createRelease = 'POST /repos/{owner}/{repo}/releases';
 const updateRelease = 'PATCH /repos/{owner}/{repo}/releases/{release_id}';
 const repoAssets = 'GET /repos/{owner}/{repo}/releases/{release_id}/assets';
 const uploadAssets = 'POST {origin}/repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}';
 const deleteAssets = 'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}';
-function get_release_by_tag(tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit) {
-    return __awaiter(this, void 0, void 0, function* () {
+function get_release_by_tag(tag_1, draft_1, prerelease_1, make_latest_1, release_name_1, body_1, octokit_1, overwrite_1, promote_1, target_commit_1) {
+    return __awaiter(this, arguments, void 0, function* (tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, known_draft_id = 0) {
         let release;
         try {
-            core.debug(`Getting release by tag ${tag}.`);
-            // @ts-ignore
-            release = yield octokit.request(releaseByTag, Object.assign(Object.assign({}, repo()), { tag: tag }));
+            core.debug(`Draft ID: ${known_draft_id}`);
+            if (draft && known_draft_id !== 0) {
+                // We are working with a draft release and we already created it
+                core.debug(`Getting release by id ${known_draft_id} because we're working with a draft release.`);
+                release = yield octokit.request(releaseByID, Object.assign(Object.assign({}, repo()), { release_id: known_draft_id }));
+                core.debug(`The release has the following ID: ${release.data.id}`);
+            }
+            else {
+                core.debug(`Getting release by tag ${tag}.`);
+                // @ts-ignore
+                release = yield octokit.request(releaseByTag, Object.assign(Object.assign({}, repo()), { tag: tag }));
+            }
         }
         catch (error) {
             // If this returns 404, we need to create the release first.
@@ -86,7 +96,9 @@ function get_release_by_tag(tag, draft, prerelease, make_latest, release_name, b
                 }
             }
             // @ts-ignore
-            return yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
+            const _release = yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
+            core.setOutput('draft_id', _release.data.id);
+            return _release;
         }
         return yield update_release(promote, release, tag, overwrite, release_name, body, octokit);
     });
@@ -198,6 +210,7 @@ function run() {
             const make_latest = core.getInput('make_latest') != 'false';
             const release_name = core.getInput('release_name');
             const target_commit = core.getInput('target_commit');
+            const draft_release_id = core.getInput('draft_id');
             const check_duplicates = core.getInput('check_duplicates') != 'false' ? true : false;
             const body = core
                 .getInput('body')
@@ -205,7 +218,7 @@ function run() {
                 .replace(/%0D/gi, '\r')
                 .replace(/%25/g, '%');
             const octokit = github.getOctokit(token);
-            const release = yield get_release_by_tag(tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit);
+            const release = yield get_release_by_tag(tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, Number(draft_release_id));
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {

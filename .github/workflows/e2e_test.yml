@@ -15,6 +15,42 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Make test draft
+      uses: ./
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: README.md
+        asset_name: TEST.md
+        tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
+        draft: true
+        body: "rofl lol test%0Aianal %25 fubar"
+
+    - name: Assert draft release get be retrieved
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs')
+          const assert = require('assert').strict;
+
+          // We cannot find drafts by tag
+          const releaseByTag = await github.rest.repos.getReleaseByTag({
+            ...context.repo,
+            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}"
+          })
+          assert.equal(release, None)
+          
+          // Instead we can find them by ID
+          const release = await github.rest.repos.getReleaseById({
+            ...context.repo,
+            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
+            release_id: ${{ steps.make-test-draft.outputs.draft_id }}
+          })
+          
+          assert.deepStrictEqual(release.data.draft, true)
+          assert.deepStrictEqual(release.data.body, "rofl lol test\nianal % fubar")
+          assert.deepStrictEqual(release.data.assets[0].name, "TEST.md")
+
     - name: Make test pre-release
       uses: ./
       with:

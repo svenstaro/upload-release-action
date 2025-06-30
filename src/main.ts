@@ -42,7 +42,7 @@ async function get_release_by_tag(
   try {
     core.debug(`Draft ID: ${known_draft_id}`)
 
-    if (draft === true && known_draft_id !== 0) {
+    if (draft && known_draft_id !== 0) {
       // We are working with a draft release and we already created it
       core.debug(
         `Getting release by id ${known_draft_id} because we're working with a draft release.`
