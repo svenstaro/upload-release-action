@@ -63,15 +63,13 @@ const updateRelease = 'PATCH /repos/{owner}/{repo}/releases/{release_id}';
 const repoAssets = 'GET /repos/{owner}/{repo}/releases/{release_id}/assets';
 const uploadAssets = 'POST {origin}/repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}';
 const deleteAssets = 'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}';
-function get_release_by_tag(tag_1, draft_1, prerelease_1, make_latest_1, release_name_1, body_1, octokit_1, overwrite_1, promote_1, target_commit_1) {
-    return __awaiter(this, arguments, void 0, function* (tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, known_draft_id = 0) {
+function get_or_create_release(tag_1, draft_1, prerelease_1, make_latest_1, release_name_1, body_1, octokit_1, overwrite_1, promote_1, target_commit_1) {
+    return __awaiter(this, arguments, void 0, function* (tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, release_id = 0) {
         let release;
         try {
-            core.info(`Draft ID: ${known_draft_id}`);
-            if (draft && known_draft_id !== 0) {
-                // We are working with a draft release and we already created it
-                core.info(`Getting release by id ${known_draft_id} because we're working with a draft release.`);
-                release = yield octokit.request(releaseByID, Object.assign(Object.assign({}, repo()), { release_id: known_draft_id }));
+            if (release_id !== 0) { // Draft releases can only be found by ID, not by tag.
+                core.info(`Getting release by id ${release_id}`);
+                release = yield octokit.request(releaseByID, Object.assign(Object.assign({}, repo()), { release_id: release_id }));
                 core.debug(`The release has the following ID: ${release.data.id}`);
             }
             else {
@@ -210,15 +208,19 @@ function run() {
             const make_latest = core.getInput('make_latest') != 'false';
             const release_name = core.getInput('release_name');
             const target_commit = core.getInput('target_commit');
-            const draft_release_id = core.getInput('draft_id');
-            const check_duplicates = core.getInput('check_duplicates') != 'false' ? true : false;
+            const release_id = Number(core.getInput('release_id'));
+            if (release_id < 0 || Number.isNaN(release_id)) {
+                core.setFailed(`Invalid release_id provided - ${release_id}. It must be a non-negative integer.`);
+                return;
+            }
+            const check_duplicates = core.getInput('check_duplicates') != 'false';
             const body = core
                 .getInput('body')
                 .replace(/%0A/gi, '\n')
                 .replace(/%0D/gi, '\r')
                 .replace(/%25/g, '%');
             const octokit = github.getOctokit(token);
-            const release = yield get_release_by_tag(tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, Number(draft_release_id));
+            const release = yield get_or_create_release(tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, release_id);
             if (file_glob) {
                 const files = glob.sync(file);
                 if (files.length > 0) {

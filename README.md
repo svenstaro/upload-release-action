@@ -21,6 +21,7 @@ Optional Arguments
   - Note that this will cause reuploads of the same file to fail - for that, use `overwrite` instead.
 - `promote`: If a prerelease already exists, promote it to a release (Default: `false`).
 - `draft`: Sets the release as a draft instead of publishing it, allowing you to make any edits needed before releasing (Default: `false`).
+  - `release_id`: Used for searching for existing release, instead of tag. Must be used if uploading files to an existing draft release.
 - `prerelease`: Mark the release as a pre-release (Default: `false`).
 - `make_latest`: Mark the release as the latest release for the repository (Default: `true`).
 - `release_name`: Explicitly set a release name. (Defaults: implicitly same as `tag` via GitHub API).
@@ -31,6 +32,7 @@ Optional Arguments
 ## Output variables
 
 - `browser_download_url`: The publicly available URL of the asset.
+- `release_id`: The numerical ID of the created or updated release.
 
 ## Usage
 

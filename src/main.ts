@@ -25,7 +25,7 @@ type UploadAssetResp = Endpoints[typeof uploadAssets]['response']
 type UpdateReleaseResp = Endpoints[typeof updateRelease]['response']
 type UpdateReleaseParams = Endpoints[typeof updateRelease]['parameters']
 
-async function get_release_by_tag(
+async function get_or_create_release(
   tag: string,
   draft: boolean,
   prerelease: boolean,
@@ -36,20 +36,18 @@ async function get_release_by_tag(
   overwrite: boolean,
   promote: boolean,
   target_commit: string,
-  known_draft_id = 0
-): Promise<ReleaseByTagResp | CreateReleaseResp | UpdateReleaseResp> {
+  release_id = 0
+): Promise<
+  ReleaseByTagResp | ReleaseByIDResp | CreateReleaseResp | UpdateReleaseResp
+> {
   let release: ReleaseByTagResp | ReleaseByIDResp
   try {
-    core.info(`Draft ID: ${known_draft_id}`)
-
-    if (draft && known_draft_id !== 0) {
-      // We are working with a draft release and we already created it
-      core.info(
-        `Getting release by id ${known_draft_id} because we're working with a draft release.`
-      )
+    if (release_id !== 0) {
+      // Draft releases can only be found by ID, not by tag.
+      core.info(`Getting release by id ${release_id}`)
       release = await octokit.request(releaseByID, {
         ...repo(),
-        release_id: known_draft_id
+        release_id: release_id
       })
 
       core.debug(`The release has the following ID: ${release.data.id}`)
@@ -259,9 +257,15 @@ async function run(): Promise<void> {
     const make_latest = core.getInput('make_latest') != 'false'
     const release_name = core.getInput('release_name')
     const target_commit = core.getInput('target_commit')
-    const draft_release_id = core.getInput('draft_id')
-    const check_duplicates =
-      core.getInput('check_duplicates') != 'false' ? true : false
+    const release_id = Number(core.getInput('release_id'))
+    if (release_id < 0 || Number.isNaN(release_id)) {
+      core.setFailed(
+        `Invalid release_id provided - ${release_id}. It must be a non-negative integer.`
+      )
+      return
+    }
+
+    const check_duplicates = core.getInput('check_duplicates') != 'false'
     const body = core
       .getInput('body')
       .replace(/%0A/gi, '\n')
@@ -269,7 +273,7 @@ async function run(): Promise<void> {
       .replace(/%25/g, '%')
 
     const octokit = github.getOctokit(token)
-    const release = await get_release_by_tag(
+    const release = await get_or_create_release(
       tag,
       draft,
       prerelease,
@@ -280,7 +284,7 @@ async function run(): Promise<void> {
       overwrite,
       promote,
       target_commit,
-      Number(draft_release_id)
+      release_id
     )
 
     if (file_glob) {
