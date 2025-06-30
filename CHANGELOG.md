@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.11.0] - 2025-06-30
+## [2.11.1] - 2025-06-30
 - Adds a `release_id` output, and optional input, for uploading files to release - [#136](https://github.com/svenstaro/upload-release-action/pull/136) (thanks @alexis-opolka)
 
 ## [2.10.0] - 2025-06-21
