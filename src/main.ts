@@ -9,6 +9,7 @@ import {retry} from '@lifeomic/attempt'
 
 const getRef = 'GET /repos/{owner}/{repo}/git/ref/{ref}'
 const releaseByTag = 'GET /repos/{owner}/{repo}/releases/tags/{tag}'
+const releaseByID = 'GET /repos/{owner}/{repo}/releases/{release_id}'
 const createRelease = 'POST /repos/{owner}/{repo}/releases'
 const updateRelease = 'PATCH /repos/{owner}/{repo}/releases/{release_id}'
 const repoAssets = 'GET /repos/{owner}/{repo}/releases/{release_id}/assets'
@@ -17,6 +18,7 @@ const uploadAssets =
 const deleteAssets = 'DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}'
 
 type ReleaseByTagResp = Endpoints[typeof releaseByTag]['response']
+type ReleaseByIDResp = Endpoints[typeof releaseByID]['response']
 type CreateReleaseResp = Endpoints[typeof createRelease]['response']
 type RepoAssetsResp = Endpoints[typeof repoAssets]['response']['data']
 type UploadAssetResp = Endpoints[typeof uploadAssets]['response']
@@ -33,17 +35,32 @@ async function get_release_by_tag(
   octokit: Octokit,
   overwrite: boolean,
   promote: boolean,
-  target_commit: string
+  target_commit: string,
+  known_draft_id = 0
 ): Promise<ReleaseByTagResp | CreateReleaseResp | UpdateReleaseResp> {
-  let release: ReleaseByTagResp
+  let release: ReleaseByTagResp | ReleaseByIDResp
   try {
-    core.debug(`Getting release by tag ${tag}.`)
+    core.debug(`Draft ID: ${known_draft_id}`)
 
-    // @ts-ignore
-    release = await octokit.request(releaseByTag, {
-      ...repo(),
-      tag: tag
-    })
+    if (draft === true && known_draft_id !== 0) {
+      // We are working with a draft release and we already created it
+      core.debug(
+        `Getting release by id ${known_draft_id} because we're working with a draft release.`
+      )
+      release = await octokit.request(releaseByID, {
+        ...repo(),
+        release_id: known_draft_id
+      })
+
+      core.debug(`The release has the following ID: ${release.data.id}`)
+    } else {
+      core.debug(`Getting release by tag ${tag}.`)
+      // @ts-ignore
+      release = await octokit.request(releaseByTag, {
+        ...repo(),
+        tag: tag
+      })
+    }
   } catch (error: any) {
     // If this returns 404, we need to create the release first.
     if (error.status !== 404) throw error
@@ -63,7 +80,7 @@ async function get_release_by_tag(
       }
     }
     // @ts-ignore
-    return await octokit.request(createRelease, {
+    const _release = await octokit.request(createRelease, {
       ...repo(),
       tag_name: tag,
       draft: draft,
@@ -73,6 +90,8 @@ async function get_release_by_tag(
       body: body,
       target_commitish: target_commit
     })
+    core.setOutput('draft_id', _release.data.id)
+    return _release
   }
   return await update_release(
     promote,
@@ -236,6 +255,7 @@ async function run(): Promise<void> {
     const make_latest = core.getInput('make_latest') != 'false'
     const release_name = core.getInput('release_name')
     const target_commit = core.getInput('target_commit')
+    const draft_release_id = core.getInput('draft_id')
     const check_duplicates =
       core.getInput('check_duplicates') != 'false' ? true : false
     const body = core
@@ -255,7 +275,8 @@ async function run(): Promise<void> {
       octokit,
       overwrite,
       promote,
-      target_commit
+      target_commit,
+      Number(draft_release_id)
     )
 
     if (file_glob) {
