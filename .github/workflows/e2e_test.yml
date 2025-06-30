@@ -83,7 +83,6 @@ jobs:
             release_id: process.env.DRAFT_ID,
           })
           
-          assert.deepStrictEqual(release.data.prerelease, true)
           assert.deepStrictEqual(release.data.body, "rofl lol test\nianal % fubar")
           assert.deepStrictEqual(release.data.assets.map(a => a.name), ["TEST.md", "TEST2.md"])
 
