@@ -49,7 +49,6 @@ jobs:
           // Instead we can find them by ID
           const release = await github.request('GET /repos/{owner}/{repo}/releases/{release_id}', {
             ...context.repo,
-            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
             release_id: process.env.DRAFT_ID,
           })
           
@@ -81,7 +80,6 @@ jobs:
           
           const release = await github.request('GET /repos/{owner}/{repo}/releases/{release_id}', {
             ...context.repo,
-            tag: "ci-test-${{ matrix.os }}-${{ github.run_id }}",
             release_id: process.env.DRAFT_ID,
           })
           
