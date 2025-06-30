@@ -74,8 +74,6 @@ jobs:
         script: |
           const assert = require('assert').strict;
           
-          const expected = fs.readFileSync("README.md", "utf8")
-          
           const release = await github.request('GET /repos/{owner}/{repo}/releases/{release_id}', {
             ...context.repo,
             release_id: process.env.DRAFT_ID,
