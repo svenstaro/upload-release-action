@@ -94,9 +94,24 @@ function get_or_create_release(tag_1, draft_1, prerelease_1, make_latest_1, rele
                         throw tagError;
                 }
             }
-            // @ts-ignore
-            const _release = yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
-            return _release;
+            try {
+                // @ts-ignore
+                const _release = yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
+                return _release;
+            }
+            catch (create_release_error) {
+                if (create_release_error.status == 422 &&
+                    create_release_error.response.data.errors[0].code == 'already_exists') {
+                    core.info(`Tried to create a release for tag ${tag}, but it already exists - probably due to race condition between matrix jobs.`);
+                    // @ts-ignore
+                    release = yield octokit.request(releaseByTag, Object.assign(Object.assign({}, repo()), { tag: tag }));
+                    // In this case, we do not throw the error, and we don't return since possibly we want to update it
+                }
+                else {
+                    core.setFailed(`Failed to create release release for tag ${tag}: ${error.message}`);
+                    throw error;
+                }
+            }
         }
         return yield update_release(promote, release, tag, overwrite, release_name, body, octokit);
     });

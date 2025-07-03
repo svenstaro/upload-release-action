@@ -77,18 +77,41 @@ async function get_or_create_release(
         if (tagError.status !== 404) throw tagError
       }
     }
-    // @ts-ignore
-    const _release = await octokit.request(createRelease, {
-      ...repo(),
-      tag_name: tag,
-      draft: draft,
-      prerelease: prerelease,
-      make_latest: make_latest ? 'true' : 'false',
-      name: release_name,
-      body: body,
-      target_commitish: target_commit
-    })
-    return _release
+
+    try {
+      // @ts-ignore
+      const _release = await octokit.request(createRelease, {
+        ...repo(),
+        tag_name: tag,
+        draft: draft,
+        prerelease: prerelease,
+        make_latest: make_latest ? 'true' : 'false',
+        name: release_name,
+        body: body,
+        target_commitish: target_commit
+      })
+      return _release
+    } catch (create_release_error: any) {
+      if (
+        create_release_error.status == 422 &&
+        create_release_error.response.data.errors[0].code == 'already_exists'
+      ) {
+        core.info(
+          `Tried to create a release for tag ${tag}, but it already exists - probably due to race condition between matrix jobs.`
+        )
+        // @ts-ignore
+        release = await octokit.request(releaseByTag, {
+          ...repo(),
+          tag: tag
+        })
+        // In this case, we do not throw the error, and we don't return since possibly we want to update it
+      } else {
+        core.setFailed(
+          `Failed to create release release for tag ${tag}: ${error.message}`
+        )
+        throw error
+      }
+    }
   }
 
   return await update_release(
