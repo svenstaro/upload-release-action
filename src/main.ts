@@ -42,30 +42,12 @@ async function get_or_create_release(
 > {
   let release: ReleaseByTagResp | ReleaseByIDResp
   try {
-    if (release_id !== 0) {
-      // Draft releases can only be found by ID, not by tag.
-      core.info(`Getting release by id ${release_id}`)
-      release = await octokit.request(releaseByID, {
-        ...repo(),
-        release_id: release_id
-      })
-
-      core.debug(`The release has the following ID: ${release.data.id}`)
-    } else {
-      core.info(`Getting release by tag ${tag}.`)
-      // @ts-ignore
-      release = await octokit.request(releaseByTag, {
-        ...repo(),
-        tag: tag
-      })
-    }
+    release = await get_release(octokit, tag, release_id)
   } catch (error: any) {
     // If this returns 404, we need to create the release first.
     if (error.status !== 404) throw error
 
-    core.info(
-      `Release for tag ${tag} doesn't exist yet so we'll create it now.`
-    )
+    core.info(`Release for tag ${tag} doesn't exist - creating it`)
     if (target_commit) {
       try {
         await octokit.request(getRef, {
@@ -77,18 +59,37 @@ async function get_or_create_release(
         if (tagError.status !== 404) throw tagError
       }
     }
-    // @ts-ignore
-    const _release = await octokit.request(createRelease, {
-      ...repo(),
-      tag_name: tag,
-      draft: draft,
-      prerelease: prerelease,
-      make_latest: make_latest ? 'true' : 'false',
-      name: release_name,
-      body: body,
-      target_commitish: target_commit
-    })
-    return _release
+
+    try {
+      // @ts-ignore
+      const _release = await octokit.request(createRelease, {
+        ...repo(),
+        tag_name: tag,
+        draft: draft,
+        prerelease: prerelease,
+        make_latest: make_latest ? 'true' : 'false',
+        name: release_name,
+        body: body,
+        target_commitish: target_commit
+      })
+      return _release
+    } catch (create_release_error: any) {
+      if (
+        create_release_error.status == 422 &&
+        create_release_error.response.data.errors[0].code == 'already_exists'
+      ) {
+        core.info(
+          `Tried to create a release for tag ${tag}, but it already exists - probably due to race condition between matrix jobs.`
+        )
+        release = await get_release(octokit, tag, release_id)
+        // In this case, we do not throw the error, and we don't return since possibly we want to update it
+      } else {
+        core.setFailed(
+          `Failed to create release for tag ${tag}: ${error.message}`
+        )
+        throw error
+      }
+    }
   }
 
   return await update_release(
@@ -100,6 +101,30 @@ async function get_or_create_release(
     body,
     octokit
   )
+}
+
+/** May throw octokit exceptions */
+async function get_release(
+  octokit: Octokit,
+  tag: string,
+  release_id: number
+): Promise<ReleaseByTagResp | ReleaseByIDResp> {
+  if (release_id !== 0) {
+    // Draft releases can only be found by ID, not by tag.
+    core.info(`Getting release by id ${release_id}`)
+    // @ts-ignore
+    return await octokit.request(releaseByID, {
+      ...repo(),
+      release_id: release_id
+    })
+  } else {
+    core.info(`Getting release by tag ${tag}.`)
+    // @ts-ignore
+    return await octokit.request(releaseByTag, {
+      ...repo(),
+      tag: tag
+    })
+  }
 }
 
 async function update_release(
