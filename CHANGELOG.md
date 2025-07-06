@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.11.2] - 2025-07-06
+- Solved race-condition when matrix builds try to create the same release at the same time - [#147](https://github.com/svenstaro/upload-release-action/pull/147)
+
 ## [2.11.1] - 2025-06-30
 - Adds a `release_id` output, and optional input, for uploading files to release - [#136](https://github.com/svenstaro/upload-release-action/pull/136) (thanks @alexis-opolka)
 
