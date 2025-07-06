@@ -67,23 +67,13 @@ function get_or_create_release(tag_1, draft_1, prerelease_1, make_latest_1, rele
     return __awaiter(this, arguments, void 0, function* (tag, draft, prerelease, make_latest, release_name, body, octokit, overwrite, promote, target_commit, release_id = 0) {
         let release;
         try {
-            if (release_id !== 0) {
-                // Draft releases can only be found by ID, not by tag.
-                core.info(`Getting release by id ${release_id}`);
-                release = yield octokit.request(releaseByID, Object.assign(Object.assign({}, repo()), { release_id: release_id }));
-                core.debug(`The release has the following ID: ${release.data.id}`);
-            }
-            else {
-                core.info(`Getting release by tag ${tag}.`);
-                // @ts-ignore
-                release = yield octokit.request(releaseByTag, Object.assign(Object.assign({}, repo()), { tag: tag }));
-            }
+            release = yield get_release(octokit, tag, release_id);
         }
         catch (error) {
             // If this returns 404, we need to create the release first.
             if (error.status !== 404)
                 throw error;
-            core.info(`Release for tag ${tag} doesn't exist yet so we'll create it now.`);
+            core.info(`Release for tag ${tag} doesn't exist - creating it`);
             if (target_commit) {
                 try {
                     yield octokit.request(getRef, Object.assign(Object.assign({}, repo()), { ref: `tags/${tag}` }));
@@ -94,11 +84,41 @@ function get_or_create_release(tag_1, draft_1, prerelease_1, make_latest_1, rele
                         throw tagError;
                 }
             }
-            // @ts-ignore
-            const _release = yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
-            return _release;
+            try {
+                // @ts-ignore
+                const _release = yield octokit.request(createRelease, Object.assign(Object.assign({}, repo()), { tag_name: tag, draft: draft, prerelease: prerelease, make_latest: make_latest ? 'true' : 'false', name: release_name, body: body, target_commitish: target_commit }));
+                return _release;
+            }
+            catch (create_release_error) {
+                if (create_release_error.status == 422 &&
+                    create_release_error.response.data.errors[0].code == 'already_exists') {
+                    core.info(`Tried to create a release for tag ${tag}, but it already exists - probably due to race condition between matrix jobs.`);
+                    release = yield get_release(octokit, tag, release_id);
+                    // In this case, we do not throw the error, and we don't return since possibly we want to update it
+                }
+                else {
+                    core.setFailed(`Failed to create release for tag ${tag}: ${error.message}`);
+                    throw error;
+                }
+            }
         }
         return yield update_release(promote, release, tag, overwrite, release_name, body, octokit);
+    });
+}
+/** May throw octokit exceptions */
+function get_release(octokit, tag, release_id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (release_id !== 0) {
+            // Draft releases can only be found by ID, not by tag.
+            core.info(`Getting release by id ${release_id}`);
+            // @ts-ignore
+            return yield octokit.request(releaseByID, Object.assign(Object.assign({}, repo()), { release_id: release_id }));
+        }
+        else {
+            core.info(`Getting release by tag ${tag}.`);
+            // @ts-ignore
+            return yield octokit.request(releaseByTag, Object.assign(Object.assign({}, repo()), { tag: tag }));
+        }
     });
 }
 function update_release(promote, release, tag, overwrite, release_name, body, octokit) {
