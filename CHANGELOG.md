@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.11.4] - 2026-02-25
+- Bump npm versions
+
 ## [2.11.3] - 2025-11-20
 - Post-fix releases created as draft when they shouldn't have - [#99](https://github.com/svenstaro/upload-release-action/pull/99)
 
