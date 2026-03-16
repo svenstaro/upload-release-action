@@ -13,7 +13,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Make draft
       id: make-draft
@@ -27,7 +27,7 @@ jobs:
         body: "rofl lol test%0Aianal %25 fubar"
 
     - name: Assert draft release get be retrieved
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       env:
         RELEASE_ID: ${{ steps.make-draft.outputs.release_id }}
       with:
@@ -66,7 +66,7 @@ jobs:
         tag: ci-test-${{ matrix.os }}-${{ github.run_id }}
 
     - name: Check that files can be uploaded to existing draft
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       env:
         RELEASE_ID: ${{ steps.make-draft.outputs.release_id }}
       with:
@@ -84,7 +84,7 @@ jobs:
 
     - name: Clean up draft
       if: ${{ always() }}
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -106,7 +106,7 @@ jobs:
         body: "rofl lol test%0Aianal %25 fubar"
 
     - name: Check that the uploaded asset is readable
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -142,7 +142,7 @@ jobs:
         body: "new body"
 
     - name: Check that the release is promoted
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         retries: 15
@@ -188,7 +188,7 @@ jobs:
 
     - name: Clean up
       if: ${{ always() }}
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |

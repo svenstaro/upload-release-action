@@ -48,5 +48,5 @@ outputs:
   release_id:
     description: 'The ID of the draft release created.'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'
