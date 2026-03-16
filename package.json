@@ -27,14 +27,14 @@
   "author": "Sven-Hendrik Haase",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^3.0.0",
-    "@actions/github": "^9.0.0",
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
     "@lifeomic/attempt": "^3.1.0",
-    "@octokit/core": "^7.0.0",
+    "@octokit/core": "^5.2.1",
     "glob": "^11"
   },
   "devDependencies": {
-    "@octokit/types": "^16.0.0",
+    "@octokit/types": "^13.6.1",
     "@types/jest": "^29",
     "@types/node": "^22",
     "@typescript-eslint/eslint-plugin": "^8.14.0",
