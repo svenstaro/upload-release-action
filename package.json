@@ -1,6 +1,6 @@
 {
   "name": "upload-release-action",
-  "version": "2.11.4",
+  "version": "2.11.5",
   "type": "module",
   "private": true,
   "description": "Upload files to a GitHub release",
