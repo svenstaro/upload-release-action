@@ -1,6 +1,7 @@
 {
   "name": "upload-release-action",
   "version": "2.11.4",
+  "type": "module",
   "private": true,
   "description": "Upload files to a GitHub release",
   "main": "lib/main.js",
@@ -10,7 +11,7 @@
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
     "pack": "ncc build",
-    "test": "jest",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
     "all": "npm run build && npm run format && npm run lint && npm run pack && npm test"
   },
   "repository": {
@@ -27,14 +28,14 @@
   "author": "Sven-Hendrik Haase",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.0",
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
     "@lifeomic/attempt": "^3.1.0",
-    "@octokit/core": "^5.2.1",
+    "@octokit/core": "^7.0.0",
     "glob": "^11"
   },
   "devDependencies": {
-    "@octokit/types": "^13.6.1",
+    "@octokit/types": "^16.0.0",
     "@types/jest": "^29",
     "@types/node": "^22",
     "@typescript-eslint/eslint-plugin": "^8.14.0",

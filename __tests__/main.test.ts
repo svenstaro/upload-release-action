@@ -1,9 +1,9 @@
+import {jest} from '@jest/globals'
 import * as github from '@actions/github'
 import * as main from '../src/main'
 
 // Frankly, tests would be entirely useless unless we can mock GitHub somehow.
 describe('Upload Release Action', () => {
-  let spyGetOctokit: jest.SpyInstance<any>
   let mockOctokit: any
 
   beforeEach(() => {
